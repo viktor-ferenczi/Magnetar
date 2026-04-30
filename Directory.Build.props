@@ -1,8 +1,5 @@
 <Project>
   <PropertyGroup>
-    <!-- Folder containing Pulsar -->
-    <Pulsar>$(APPDATA)\Pulsar</Pulsar>
-
     <!-- Folder containing Magnetar -->
     <Magnetar>$(APPDATA)\Magnetar</Magnetar>
 
