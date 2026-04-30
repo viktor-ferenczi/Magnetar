@@ -25,39 +25,39 @@ app.include_router(server.router)
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse(request, "index.html")
 
 
 @app.get("/pulsar/config", response_class=HTMLResponse)
 async def pulsar_config_page(request: Request):
-    return templates.TemplateResponse("pages/pulsar_config.html", {"request": request})
+    return templates.TemplateResponse(request, "pages/pulsar_config.html")
 
 
 @app.get("/pulsar/profiles", response_class=HTMLResponse)
 async def pulsar_profiles_page(request: Request):
-    return templates.TemplateResponse("pages/pulsar_profiles.html", {"request": request})
+    return templates.TemplateResponse(request, "pages/pulsar_profiles.html")
 
 
 @app.get("/pulsar/sources", response_class=HTMLResponse)
 async def pulsar_sources_page(request: Request):
-    return templates.TemplateResponse("pages/pulsar_sources.html", {"request": request})
+    return templates.TemplateResponse(request, "pages/pulsar_sources.html")
 
 
 @app.get("/server/config", response_class=HTMLResponse)
 async def server_config_page(request: Request):
-    return templates.TemplateResponse("pages/server_config.html", {"request": request})
+    return templates.TemplateResponse(request, "pages/server_config.html")
 
 
 @app.get("/server/world", response_class=HTMLResponse)
 async def server_world_page(request: Request):
-    return templates.TemplateResponse("pages/server_world.html", {"request": request})
+    return templates.TemplateResponse(request, "pages/server_world.html")
 
 
 @app.get("/server/admin", response_class=HTMLResponse)
 async def server_admin_page(request: Request):
-    return templates.TemplateResponse("pages/server_admin.html", {"request": request})
+    return templates.TemplateResponse(request, "pages/server_admin.html")
 
 
 @app.get("/server/dashboard", response_class=HTMLResponse)
 async def server_dashboard_page(request: Request):
-    return templates.TemplateResponse("pages/server_dashboard.html", {"request": request})
+    return templates.TemplateResponse(request, "pages/server_dashboard.html")

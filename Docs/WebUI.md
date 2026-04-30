@@ -94,11 +94,15 @@ Settings are loaded from environment variables or a `.env` file. See `env.sample
 
 ## Running
 
+The project uses [uv](https://docs.astral.sh/uv/) for dependency and virtual environment management. Dependencies are declared in `pyproject.toml`.
+
 ```bash
 cd webui
-pip install -r requirements.txt
-python run.py
+uv sync
+uv run python run.py
 ```
+
+`uv sync` creates a `.venv/` directory and installs all runtime and dev dependencies from `pyproject.toml` and the `uv.lock` lock file.
 
 The UI is then available at `http://localhost:8000`.
 
