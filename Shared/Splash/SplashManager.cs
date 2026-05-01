@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace Pulsar.Shared.Splash;
@@ -6,7 +7,7 @@ namespace Pulsar.Shared.Splash;
 public class SplashManager
 {
     public static SplashManager Instance = null;
-    public float BarValue => splash.BarValue;
+    public float BarValue => splash.IsDisposed ? float.NaN : splash.BarValue;
 
     private readonly ManualResetEventSlim ready = new();
     private readonly Thread thread;
@@ -26,16 +27,27 @@ public class SplashManager
         ready.Wait();
     }
 
-    public void SetText(string msg) => splash.Invoke(() => splash.SetText(msg));
+    private void SafeInvoke(Action action)
+    {
+        try
+        {
+            if (splash.IsDisposed) return;
+            splash.Invoke(action);
+        }
+        catch (ObjectDisposedException) { }
+        catch (InvalidOperationException) { }
+    }
+
+    public void SetText(string msg) => SafeInvoke(() => splash.SetText(msg));
 
     public void SetBarValue(float ratio = float.NaN) =>
-        splash.Invoke(() => splash.SetBarValue(ratio));
+        SafeInvoke(() => splash.SetBarValue(ratio));
 
-    public void SetTitle(string title) => splash.Invoke(() => splash.Text = title);
+    public void SetTitle(string title) => SafeInvoke(() => splash.Text = title);
 
     public void Delete()
     {
         Instance = null;
-        splash.Invoke(splash.Delete);
+        SafeInvoke(splash.Delete);
     }
 }

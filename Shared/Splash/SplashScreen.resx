@@ -58,14 +58,4 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="pulsarText.Image" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>text.png;System.Drawing.Bitmap, System.Drawing</value>
-  </data>
-  <data name="throbber.Image" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>throbber.gif;System.Drawing.Bitmap, System.Drawing</value>
-  </data>
-  <data name="$this.Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>icon.ico;System.Drawing.Icon, System.Drawing</value>
-  </data>
  </root>

@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SplashScreen));
+            var asm = typeof(SplashScreen).Assembly;
             this.layoutTable = new System.Windows.Forms.TableLayoutPanel();
             this.progressText = new System.Windows.Forms.Label();
             this.progressBar = new System.Windows.Forms.Label();
@@ -90,7 +90,7 @@
             // 
             this.pulsarText.BackColor = System.Drawing.Color.Transparent;
             this.pulsarText.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pulsarText.Image = ((System.Drawing.Image)(resources.GetObject("pulsarText.Image")));
+            this.pulsarText.Image = System.Drawing.Image.FromStream(asm.GetManifestResourceStream("Pulsar.Shared.Splash.text.png"));
             this.pulsarText.Location = new System.Drawing.Point(294, 0);
             this.pulsarText.Margin = new System.Windows.Forms.Padding(0);
             this.pulsarText.Name = "pulsarText";
@@ -103,7 +103,7 @@
             // 
             this.throbber.BackColor = System.Drawing.Color.Transparent;
             this.throbber.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.throbber.Image = ((System.Drawing.Image)(resources.GetObject("throbber.Image")));
+            this.throbber.Image = System.Drawing.Image.FromStream(asm.GetManifestResourceStream("Pulsar.Shared.Splash.throbber.gif"));
             this.throbber.Location = new System.Drawing.Point(0, 0);
             this.throbber.Margin = new System.Windows.Forms.Padding(0);
             this.throbber.Name = "throbber";
@@ -121,7 +121,7 @@
             this.Controls.Add(this.layoutTable);
             this.ForeColor = System.Drawing.Color.White;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Icon = new System.Drawing.Icon(asm.GetManifestResourceStream("Pulsar.Shared.Splash.icon.ico"));
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "SplashScreen";
             this.Padding = new System.Windows.Forms.Padding(10);

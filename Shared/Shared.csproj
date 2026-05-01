@@ -37,6 +37,11 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Splash\text.png" LogicalName="Pulsar.Shared.Splash.text.png" />
+    <EmbeddedResource Include="Splash\throbber.gif" LogicalName="Pulsar.Shared.Splash.throbber.gif" />
+    <EmbeddedResource Include="Splash\icon.ico" LogicalName="Pulsar.Shared.Splash.icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Compiler\Compiler.csproj" />
   </ItemGroup>
   <ItemGroup>
