@@ -237,7 +237,7 @@ static class Program
 #else
         string ds64Dir = ConfigManager.Instance.GameDir;
         bool isGameFramework = Tools.GetFiles(ds64Dir, ["*.config"], []).Any();
-        return isGameFramework ? ["se-dotnet-compat"] : [];
+        return isGameFramework ? ["DotNetCompat.dll"] : [];
 #endif
     }
 
