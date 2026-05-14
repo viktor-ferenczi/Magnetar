@@ -13,13 +13,13 @@ public class Launcher(string sePath)
     {
         if (IsSpaceEngineersRunning())
         {
-            Tools.ShowMessageBox("Error: Space Engineers is already running!");
+            Tools.ShowMessage("Error: Space Engineers is already running!");
             return false;
         }
 
         if (Environment.GetCommandLineArgs().Contains("-plugin"))
         {
-            Tools.ShowMessageBox(
+            Tools.ShowMessage(
                 "ERROR: \"-plugin\" support has been dropped!\n"
                     + "Use \"-sources\" add plugins there instead."
             );

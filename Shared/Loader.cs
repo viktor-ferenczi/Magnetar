@@ -33,17 +33,8 @@ public class Loader
 
         if (Tools.IsKeyPressed(Keys.Escape))
         {
-            DialogResult result = Tools.ShowMessageBox(
-                "Escape pressed. Start the game with all plugins disabled?",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question
-            );
-
-            if (result == DialogResult.Yes)
-            {
-                LogFile.Warn("Safe mode active. No plugins will be loaded!");
-                ConfigManager.Instance.SafeMode = true;
-            }
+            Tools.ShowMessage("Escape pressed. Starting the server with all plugins disabled.");
+            ConfigManager.Instance.SafeMode = true;
         }
 
         GitHub.Init();
@@ -79,11 +70,11 @@ public class Loader
                 continue;
             }
 
-            string message = $"Failed to load core plugin '{id}'";
-            LogFile.Error(message);
+            string error = $"Failed to load core plugin '{id}'";
+            LogFile.Error(error);
 
-            string fullMessage = $"{message}\nPulsar cannot continue loading!";
-            Tools.ShowMessageBox(fullMessage, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            string message = $"{error}\nPulsar cannot continue loading!";
+            Tools.ShowMessage(message);
 
             Environment.Exit(1);
         }

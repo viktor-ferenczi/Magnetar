@@ -147,7 +147,7 @@ public class ProfilesConfig(string folderPath)
                         "The current profile could not be loaded!\n"
                         + "The list of enabled plugins has been reset.\n\n"
                         + $"The original profile has been saved to Profiles\\{currentKey}.xml{suffix}";
-                    Tools.ShowMessageBox(message, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    Tools.ShowMessage(message);
                 }
             }
         }

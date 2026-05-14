@@ -126,7 +126,7 @@ static class Program
         string ds64Dir = Folder.GetDS64();
         if (ds64Dir is null)
         {
-            Tools.ShowMessageBox(
+            Tools.ShowMessage(
                 $"Error: {OldLauncher} not found!\n"
                     + "You can specify a custom location with \"-ds64\""
             );

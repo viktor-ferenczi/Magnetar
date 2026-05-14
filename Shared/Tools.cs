@@ -203,23 +203,10 @@ public static class Tools
         }
     }
 
-    public static DialogResult ShowMessageBox(
-        string msg,
-        MessageBoxButtons buttons = MessageBoxButtons.OK,
-        MessageBoxIcon icon = MessageBoxIcon.None,
-        MessageBoxDefaultButton defaultButton = MessageBoxDefaultButton.Button1
-    )
+    public static void ShowMessage(string msg)
     {
         Console.Error.WriteLine($"[Pulsar] {msg}".Replace("\r\n", "\n").Replace("\n", Environment.NewLine));
         LogFile.Error(msg);
-
-        return buttons switch
-        {
-            MessageBoxButtons.OK => DialogResult.OK,
-            MessageBoxButtons.YesNo => DialogResult.No,
-            MessageBoxButtons.YesNoCancel => DialogResult.No,
-            _ => DialogResult.OK,
-        };
     }
 
     public static IEnumerable<string> GetFiles(

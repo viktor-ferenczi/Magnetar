@@ -37,34 +37,7 @@ public static class Steam
         if (SteamAPI.IsSteamRunning())
         {
             SteamAPI.Init();
-            return;
         }
-
-        string path = GetSteamPath();
-
-        try
-        {
-            if (path is not null)
-                Process.Start(Path.Combine(path, "steam.exe"), "-silent");
-            else
-                Process.Start(new ProcessStartInfo("steam://open/main") { UseShellExecute = true });
-        }
-        catch (Win32Exception)
-        {
-            ShowWarning();
-            Environment.Exit(1);
-        }
-
-        for (int i = 0; i < SteamTimeout; i++)
-        {
-            Thread.Sleep(1000);
-
-            if (SteamAPI.Init())
-                return;
-        }
-
-        ShowWarning();
-        Environment.Exit(1);
     }
 
     public static ResolveEventHandler SteamworksResolver(string baseDir)
@@ -104,9 +77,5 @@ public static class Steam
     private static void ShowWarning()
     {
         LogFile.WriteLine("Steam failed to start!");
-        Tools.ShowMessageBox(
-            "Failed to start Steam automatically!\n"
-                + "Space Engineers requires a running Steam instance."
-        );
     }
 }
