@@ -1,0 +1,302 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading;
+using System.Windows.Forms;
+using Newtonsoft.Json;
+using Pulsar.Compiler;
+
+namespace Pulsar.Shared;
+
+public interface IExternalTools
+{
+    void OnMainThread(Action action);
+}
+
+public static class Tools
+{
+    public const string XmlDataType = "Xml files (*.xml)|*.xml|All files (*.*)|*.*";
+    public static IExternalTools External { get; private set; }
+    public static ICompilerFactory Compiler { get; private set; }
+
+    public static void Init(IExternalTools external, ICompilerFactory compiler)
+    {
+        External = external;
+        Compiler = compiler;
+    }
+
+    public static string GetFileHash(string file)
+    {
+        using var sha = SHA256.Create();
+        using FileStream fileStream = new(file, FileMode.Open, FileAccess.Read);
+        return GetHash(fileStream, sha);
+    }
+
+    public static string GetStringHash(string text)
+    {
+        using var sha = SHA256.Create();
+        using MemoryStream memory = new(Encoding.UTF8.GetBytes(text));
+        return GetHash(memory, sha);
+    }
+
+    public static string GetHash(Stream input, HashAlgorithm hash)
+    {
+        byte[] data = hash.ComputeHash(input);
+        StringBuilder sb = new(2 * data.Length);
+        foreach (byte b in data)
+            sb.AppendFormat("{0:x2}", b);
+        return sb.ToString();
+    }
+
+    public static string GetFolderHash(string folderPath, string glob = "*")
+    {
+        if (!Directory.Exists(folderPath))
+            throw new DirectoryNotFoundException($"Cannot hash non-existent folder: {folderPath}");
+
+        IEnumerable<string> files = Directory
+            .GetFiles(folderPath, glob, SearchOption.AllDirectories)
+            .OrderBy(Path.GetFileName);
+
+        StringBuilder hashBuilder = new();
+        foreach (string path in files)
+            hashBuilder.Append(GetFileHash(path));
+
+        return GetStringHash(hashBuilder.ToString());
+    }
+
+    public static string GetClipboard()
+    {
+        string cliptext = string.Empty;
+
+        Thread thread = new(new ThreadStart(() => cliptext = Clipboard.GetText()));
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+        thread.Join();
+
+        return cliptext;
+    }
+
+    public static string DateToString(DateTime? lastCheck)
+    {
+        if (lastCheck is null)
+            return "Never";
+
+        TimeSpan time = DateTime.UtcNow - lastCheck.Value;
+
+        if (time.TotalMinutes < 5)
+            return "Just Now";
+
+        if (time.TotalHours < 1)
+            return $"{time.Minutes} minutes ago";
+
+        if (time.Hours == 1)
+            return $"{time.Hours} hour ago";
+
+        if (time.TotalDays < 1)
+            return $"{time.Hours} hours ago";
+
+        if (time.Days == 1)
+            return $"{time.Days} day ago";
+
+        return $"{time.Days} days ago";
+    }
+
+    public static void OpenFileDialog(
+        string title,
+        string directory,
+        string filter,
+        Action<string> onOk
+    )
+    {
+        Thread t = new(new ThreadStart(() => OpenFileDialogThread(title, directory, filter, onOk)));
+        t.SetApartmentState(ApartmentState.STA);
+        t.Start();
+    }
+
+    private static void OpenFileDialogThread(
+        string title,
+        string directory,
+        string filter,
+        Action<string> onOk
+    )
+    {
+        // Prompt the user to select a file.
+        try
+        {
+            using OpenFileDialog openFileDialog = new();
+            if (Directory.Exists(directory))
+                openFileDialog.InitialDirectory = directory;
+            openFileDialog.Title = title;
+            openFileDialog.Filter = filter;
+            openFileDialog.RestoreDirectory = true;
+
+            Form form = new() { TopMost = true, TopLevel = true };
+
+            DialogResult dialogResult = openFileDialog.ShowDialog(form);
+            string fileName = openFileDialog.FileName;
+
+            form.Close();
+
+            if (dialogResult == DialogResult.OK && !string.IsNullOrWhiteSpace(fileName))
+            {
+                // Move back to the main thread so that we can interact with keen code again
+                External.OnMainThread(() => onOk(fileName));
+            }
+        }
+        catch (Exception e)
+        {
+            LogFile.Error("Error while opening file dialog: " + e);
+        }
+    }
+
+    public static void OpenFolderDialog(Action<string> onOk)
+    {
+        Thread t = new(new ThreadStart(() => OpenFolderDialogThread(onOk)));
+        t.SetApartmentState(ApartmentState.STA);
+        t.Start();
+    }
+
+    private static void OpenFolderDialogThread(Action<string> onOk)
+    {
+        // Prompt the user to select a folder.
+        // Net Core - FolderBrowserDialog supports the modern Vista-style dialog.
+        // Net Framework - We must hack OpenFileDialog to set some internal flags.
+
+        try
+        {
+#if NETCOREAPP
+            using FolderBrowserDialog openFolderDialog = new();
+            Form form = new() { TopMost = true, TopLevel = true };
+
+            DialogResult dialogResult = openFolderDialog.ShowDialog(form);
+            string selectedPath = openFolderDialog.SelectedPath;
+
+            form.Close();
+#else
+            using OpenFileDialog openFileDialog = new();
+            openFileDialog.CheckFileExists = false;
+            openFileDialog.CheckPathExists = true;
+            openFileDialog.RestoreDirectory = true;
+            openFileDialog.Filter = "Folders (*.*)|*.*";
+
+            Form form = new() { TopMost = true, TopLevel = true };
+
+            DialogResult dialogResult = openFileDialog.ShowDialog(form);
+            string selectedPath = openFileDialog.FileName;
+
+            form.Close();
+#endif
+
+            if (dialogResult == DialogResult.OK && !string.IsNullOrWhiteSpace(selectedPath))
+            {
+                // Move back to the main thread so that we can interact with keen code again
+                External.OnMainThread(() => onOk(selectedPath));
+            }
+        }
+        catch (Exception e)
+        {
+            LogFile.Error("Error while opening file dialog: " + e);
+        }
+    }
+
+    public static DialogResult ShowMessageBox(
+        string msg,
+        MessageBoxButtons buttons = MessageBoxButtons.OK,
+        MessageBoxIcon icon = MessageBoxIcon.None,
+        MessageBoxDefaultButton defaultButton = MessageBoxDefaultButton.Button1
+    )
+    {
+        if (Application.OpenForms.Count > 0)
+        {
+            Form form = Application.OpenForms[0];
+            if (form.InvokeRequired)
+            {
+                // Form is on a different thread
+                try
+                {
+                    object result = form.Invoke(() =>
+                        MessageBox.Show(form, msg, "Pulsar", buttons, icon, defaultButton)
+                    );
+                    if (result is DialogResult dialogResult)
+                        return dialogResult;
+                }
+                catch (Exception) { }
+            }
+            else
+            {
+                // Form is on the same thread
+                return MessageBox.Show(form, msg, "Pulsar", buttons, icon, defaultButton);
+            }
+        }
+
+        // No form
+        return MessageBox.Show(
+            msg,
+            "Pulsar",
+            buttons,
+            icon,
+            defaultButton,
+            MessageBoxOptions.DefaultDesktopOnly
+        );
+    }
+
+    public static IEnumerable<string> GetFiles(
+        string path,
+        string[] includeGlobs,
+        string[] excludeGlobs
+    )
+    {
+        IEnumerable<string> included = includeGlobs.SelectMany(pattern =>
+            Directory.EnumerateFiles(path, pattern)
+        );
+
+        IEnumerable<string> excluded = excludeGlobs.SelectMany(pattern =>
+            Directory.EnumerateFiles(path, pattern)
+        );
+
+        return included
+            .Except(excluded, StringComparer.OrdinalIgnoreCase)
+            .Select(Path.GetFileNameWithoutExtension);
+    }
+
+    public static string CleanFileName(string name)
+    {
+        HashSet<char> invalid = [.. Path.GetInvalidFileNameChars()];
+        StringBuilder newName = new();
+
+        foreach (char character in name)
+        {
+            if (invalid.Contains(character))
+                newName.Append('-');
+            else
+                newName.Append(character);
+        }
+
+        return newName.ToString();
+    }
+
+    public static T DeepCopy<T>(T obj)
+    {
+        string json = JsonConvert.SerializeObject(obj);
+        return JsonConvert.DeserializeObject<T>(json);
+    }
+
+    public static string RemoveAll(string text, IEnumerable<string> tokens)
+    {
+        foreach (string t in tokens)
+            text = text.Replace(t, "");
+        return text;
+    }
+
+    public static bool IsNative() =>
+        Environment.GetEnvironmentVariable("STEAM_COMPAT_PROTON") is null;
+
+    [DllImport("user32.dll")]
+    private static extern short GetAsyncKeyState(int vKey);
+
+    public static bool IsKeyPressed(Keys key) => GetAsyncKeyState((int)key) < 0;
+}
