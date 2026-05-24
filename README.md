@@ -22,5 +22,5 @@ Further sources may be added but make sure you fully understand the risks.<br>
 
 ## Contact
 We have an active [Discord](https://discord.gg/z8ZczP2YZY) for updates and developer information.<br>
-GitHub contributions and bug reports are also welcomed!<br>
+GitHub contributions and bug reports are also welcome!<br>
 We prefer Discord over GitHub for support-related queries.<br>
