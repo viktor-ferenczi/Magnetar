@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>2.2.0</Version>
+    <Version>0.1.0</Version>
     <Product>Magnetar</Product>
     <Copyright>© 2025 SpaceGT</Copyright>
     <AssemblyTitle>Magnetar</AssemblyTitle>
