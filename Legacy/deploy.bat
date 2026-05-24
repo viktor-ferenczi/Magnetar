@@ -115,6 +115,14 @@ copy /y /b "%SOURCE%\FuzzySharp.dll" "%LIBRARY_DIR%\" >NUL 2>&1
 echo Copying "NuGet.*.dll"
 copy /y /b "%SOURCE%\NuGet.*.dll" "%LIBRARY_DIR%\" >NUL 2>&1
 
+REM NuGet package signature verification needs these crypto assemblies, which are
+REM part of the .NET Framework GAC but out-of-band (not in the shared framework) on .NET Core.
+if "%FRAMEWORK%"==".NETCoreApp" (
+    echo Copying "System.Security.Cryptography.*.dll"
+    copy /y /b "%SOURCE%\System.Security.Cryptography.Pkcs.dll" "%LIBRARY_DIR%\" >NUL 2>&1
+    copy /y /b "%SOURCE%\System.Security.Cryptography.ProtectedData.dll" "%LIBRARY_DIR%\" >NUL 2>&1
+)
+
 REM Get the compiler directory
 set COMPILER_DIR=%LIBRARY_DIR%\Compiler
 if not exist "%COMPILER_DIR%" (
