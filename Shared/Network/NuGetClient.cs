@@ -23,10 +23,8 @@ public class NuGetClient
     private static readonly NuGetFramework ProjectFramework =
 #if NETFRAMEWORK
     NuGetFramework.Parse("net48");
-#elif NET8_0
-    NuGetFramework.Parse("net8.0-windows");
 #else
-    NuGetFramework.Parse("net10.0-windows");
+    NuGetFramework.Parse("net10.0");
 #endif
 
     private static readonly ILogger logger = new NuGetLogger();

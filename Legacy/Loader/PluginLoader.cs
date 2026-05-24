@@ -8,7 +8,6 @@ using HarmonyLib;
 using Pulsar.Shared;
 using Pulsar.Shared.Config;
 using Pulsar.Shared.Data;
-using Pulsar.Shared.Splash;
 using Sandbox.Game.World;
 using VRage.Plugins;
 using SharedLoader = Pulsar.Shared.Loader;
@@ -74,7 +73,6 @@ public class PluginLoader : IHandleInputPlugin
         {
             InstantiatePlugins();
             LogFile.WriteLine($"Initializing {plugins.Count} plugins");
-            SplashManager.Instance?.SetText($"Initializing {plugins.Count} plugins");
 
             if (Flags.CheckAllPlugins)
                 debugCompileResults.Append("Plugins that failed to Init:").AppendLine();
@@ -106,14 +104,11 @@ public class PluginLoader : IHandleInputPlugin
             LogFile.Open();
         }
 
-        SplashManager.Instance?.SetText($"Updating workshop items...");
-
         PluginList list = ConfigManager.Instance.List;
         Profile current = ConfigManager.Instance.Profiles.Current;
 
         IEnumerable<ulong> steamIDs = list.GetModPlugins(current, []).Select(x => x.WorkshopId);
         SteamMods.Update(steamIDs);
-        SplashManager.Instance?.Delete();
     }
 
     public void Update()

@@ -4,8 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading;
-using System.Windows.Forms;
 using HarmonyLib;
 using Pulsar.Legacy.Compiler;
 using Pulsar.Legacy.Launcher;
@@ -13,7 +11,6 @@ using Pulsar.Legacy.Loader;
 using Pulsar.Legacy.Patch;
 using Pulsar.Shared;
 using Pulsar.Shared.Config;
-using Pulsar.Shared.Splash;
 using SharedLauncher = Pulsar.Shared.Launcher;
 using SharedLoader = Pulsar.Shared.Loader;
 #if NETCOREAPP
@@ -50,13 +47,7 @@ static class Program
     {
 #endif
         AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
-        Application.SetUnhandledExceptionMode(UnhandledExceptionMode.ThrowException);
         Tools.InstallNativeCrashHandler("Magnetar");
-
-#if NETCOREAPP
-        Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
-#endif
-        Application.EnableVisualStyles();
 
         if (Flags.ExternalDebug)
             Debugger.Launch();
@@ -87,12 +78,6 @@ static class Program
         LogFile.WriteLine($"Starting Magnetar v{asmName.Version.ToString(3)}");
 
         Flags.LogFlags();
-
-        if (Flags.SplashType == SplashType.Pulsar)
-            SplashManager.Instance = new SplashManager();
-
-        SplashManager.Instance?.SetTitle("Magnetar");
-        SplashManager.Instance?.SetText("Starting Magnetar...");
 
         ConfigManager.EarlyInit(pulsarDir);
     }
@@ -188,7 +173,6 @@ static class Program
 
     private static void SetupSteam()
     {
-        SplashManager.Instance?.SetText("Starting Steam...");
         string ds64Dir = ConfigManager.Instance.GameDir;
         AppDomain.CurrentDomain.AssemblyResolve += Steam.SteamworksResolver(ds64Dir);
         Steam.Init(Steam.AppIdSe1DS);
@@ -196,8 +180,6 @@ static class Program
 
     private static void SetupPlugins(string baseDir)
     {
-        SplashManager.Instance?.SetText("Getting Plugins...");
-
         var asmName = Assembly.GetExecutingAssembly().GetName();
         string dependencyDir = Path.Combine(baseDir, "Libraries", asmName.Name);
 
@@ -218,7 +200,6 @@ static class Program
         Preloader preloader = new(SharedLoader.Instance.Plugins.Select(x => x.Item2));
         if (preloader.HasPatches && !ConfigManager.Instance.SafeMode)
         {
-            SplashManager.Instance?.SetText("Applying Preloaders...");
             string preloadDir = Path.Combine(pulsarDir, "Preloader");
 
             preloader.PreHooks();
@@ -297,33 +278,6 @@ static class Program
         Game.AddCompilationSymbols("NETCOREAPP");
 #endif
 
-        SplashManager.Instance?.SetText("Launching Dedicated Server...");
-        if (Tools.IsNative())
-            ProgressPollFactory().Start();
-
-        SplashManager.Instance?.Delete();
         Game.StartDedicatedServer(args);
-    }
-
-    private static Thread ProgressPollFactory()
-    {
-        static void ProgressPoll()
-        {
-            float progress = 0;
-            SplashManager splash = SplashManager.Instance;
-
-            while (SplashManager.Instance is not null && progress < 1)
-            {
-                // FIXME: Does not work well with preloaded assemblies
-                progress = Game.GetLoadProgress();
-
-                if (float.IsNaN(splash.BarValue) || splash.BarValue < progress)
-                    splash?.SetBarValue(progress);
-
-                Thread.Sleep(250); // ms
-            }
-        }
-
-        return new Thread(ProgressPoll) { IsBackground = true, Name = "ProgressPoll" };
     }
 }

@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Windows.Forms;
 using Newtonsoft.Json.Linq;
 using Pulsar.Shared.Config;
 using Pulsar.Shared.Data;

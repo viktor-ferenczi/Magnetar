@@ -4,12 +4,10 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using HarmonyLib;
 using Pulsar.Shared.Config;
 using Pulsar.Shared.Data;
 using Pulsar.Shared.Network;
-using Pulsar.Shared.Splash;
 using Pulsar.Shared.Stats;
 
 namespace Pulsar.Shared;
@@ -20,7 +18,6 @@ public class Loader
     public readonly List<(PluginData, Assembly)> Plugins = [];
 
     private readonly CoreConfig config;
-    private readonly SplashManager splash;
     private readonly ProfilesConfig profiles;
 
     public Loader(string statsServer, string[] forceEnable = null)
@@ -28,14 +25,6 @@ public class Loader
         ConfigManager manager = ConfigManager.Instance;
         config = manager.Core;
         profiles = manager.Profiles;
-
-        splash = SplashManager.Instance;
-
-        if (Tools.IsKeyPressed(Keys.Escape))
-        {
-            Tools.ShowMessage("Escape pressed. Starting the server with all plugins disabled.");
-            ConfigManager.Instance.SafeMode = true;
-        }
 
         GitHub.Init();
         LogEnabledPlugins();
@@ -51,12 +40,14 @@ public class Loader
                 $"Unexpected Harmony version, plugins may be unstable. Expected {expectedHarmony} but found {actualHarmony}"
             );
 
-        splash?.SetText("Instantiating plugins...");
         LogFile.WriteLine("Instantiating plugins");
 
         StringBuilder debugCompileResults = new();
         if (Flags.CheckAllPlugins)
             debugCompileResults.Append("Plugins that failed to compile:").AppendLine();
+
+        // Plugins loaded without being explicitly enabled in the current profile.
+        int implicitlyLoaded = 0;
 
         // FIXME: Treat as a plugin dependency in the future.
         foreach (string id in forceEnable ?? [])
@@ -67,6 +58,7 @@ public class Loader
             )
             {
                 Plugins.Add((data, plugin));
+                implicitlyLoaded++;
                 continue;
             }
 
@@ -106,6 +98,8 @@ public class Loader
         if (Flags.CheckAllPlugins)
             LogFile.WriteLine(debugCompileResults.ToString());
 
+        PluginProgress.ReportSummary(Plugins.Count, implicitlyLoaded);
+
         Task.Run(ReportEnabledPlugins);
     }
 
@@ -114,7 +108,6 @@ public class Loader
         if (!ConfigManager.Instance.Core.DataHandlingConsent)
             return;
 
-        splash?.SetText("Reporting plugin usage...");
         LogFile.WriteLine("Reporting plugin usage");
 
         // Skip local plugins, keep only enabled ones

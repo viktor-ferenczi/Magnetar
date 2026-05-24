@@ -102,7 +102,7 @@ internal static class Game
     {
         typeof(MyFakes).TypeInitializer.Invoke(null, null);
         MyFakes.ENABLE_F12_MENU = Flags.DebugMenu;
-        MyFakes.ENABLE_SPLASHSCREEN = Flags.SplashType == SplashType.Native;
+        MyFakes.ENABLE_SPLASHSCREEN = false;
     }
 
     public static float GetLoadProgress()

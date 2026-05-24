@@ -5,8 +5,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading;
-using System.Windows.Forms;
 using Newtonsoft.Json;
 using Pulsar.Compiler;
 
@@ -19,7 +17,6 @@ public interface IExternalTools
 
 public static class Tools
 {
-    public const string XmlDataType = "Xml files (*.xml)|*.xml|All files (*.*)|*.*";
     public static IExternalTools External { get; private set; }
     public static ICompilerFactory Compiler { get; private set; }
 
@@ -68,18 +65,6 @@ public static class Tools
         return GetStringHash(hashBuilder.ToString());
     }
 
-    public static string GetClipboard()
-    {
-        string cliptext = string.Empty;
-
-        Thread thread = new(new ThreadStart(() => cliptext = Clipboard.GetText()));
-        thread.SetApartmentState(ApartmentState.STA);
-        thread.Start();
-        thread.Join();
-
-        return cliptext;
-    }
-
     public static string DateToString(DateTime? lastCheck)
     {
         if (lastCheck is null)
@@ -103,104 +88,6 @@ public static class Tools
             return $"{time.Days} day ago";
 
         return $"{time.Days} days ago";
-    }
-
-    public static void OpenFileDialog(
-        string title,
-        string directory,
-        string filter,
-        Action<string> onOk
-    )
-    {
-        Thread t = new(new ThreadStart(() => OpenFileDialogThread(title, directory, filter, onOk)));
-        t.SetApartmentState(ApartmentState.STA);
-        t.Start();
-    }
-
-    private static void OpenFileDialogThread(
-        string title,
-        string directory,
-        string filter,
-        Action<string> onOk
-    )
-    {
-        // Prompt the user to select a file.
-        try
-        {
-            using OpenFileDialog openFileDialog = new();
-            if (Directory.Exists(directory))
-                openFileDialog.InitialDirectory = directory;
-            openFileDialog.Title = title;
-            openFileDialog.Filter = filter;
-            openFileDialog.RestoreDirectory = true;
-
-            Form form = new() { TopMost = true, TopLevel = true };
-
-            DialogResult dialogResult = openFileDialog.ShowDialog(form);
-            string fileName = openFileDialog.FileName;
-
-            form.Close();
-
-            if (dialogResult == DialogResult.OK && !string.IsNullOrWhiteSpace(fileName))
-            {
-                // Move back to the main thread so that we can interact with keen code again
-                External.OnMainThread(() => onOk(fileName));
-            }
-        }
-        catch (Exception e)
-        {
-            LogFile.Error("Error while opening file dialog: " + e);
-        }
-    }
-
-    public static void OpenFolderDialog(Action<string> onOk)
-    {
-        Thread t = new(new ThreadStart(() => OpenFolderDialogThread(onOk)));
-        t.SetApartmentState(ApartmentState.STA);
-        t.Start();
-    }
-
-    private static void OpenFolderDialogThread(Action<string> onOk)
-    {
-        // Prompt the user to select a folder.
-        // Net Core - FolderBrowserDialog supports the modern Vista-style dialog.
-        // Net Framework - We must hack OpenFileDialog to set some internal flags.
-
-        try
-        {
-#if NETCOREAPP
-            using FolderBrowserDialog openFolderDialog = new();
-            Form form = new() { TopMost = true, TopLevel = true };
-
-            DialogResult dialogResult = openFolderDialog.ShowDialog(form);
-            string selectedPath = openFolderDialog.SelectedPath;
-
-            form.Close();
-#else
-            using OpenFileDialog openFileDialog = new();
-            openFileDialog.CheckFileExists = false;
-            openFileDialog.CheckPathExists = true;
-            openFileDialog.RestoreDirectory = true;
-            openFileDialog.Filter = "Folders (*.*)|*.*";
-
-            Form form = new() { TopMost = true, TopLevel = true };
-
-            DialogResult dialogResult = openFileDialog.ShowDialog(form);
-            string selectedPath = openFileDialog.FileName;
-
-            form.Close();
-#endif
-
-            if (dialogResult == DialogResult.OK && !string.IsNullOrWhiteSpace(selectedPath))
-            {
-                // Move back to the main thread so that we can interact with keen code again
-                External.OnMainThread(() => onOk(selectedPath));
-            }
-        }
-        catch (Exception e)
-        {
-            LogFile.Error("Error while opening file dialog: " + e);
-        }
     }
 
     public static void ShowMessage(string msg)
@@ -281,9 +168,4 @@ public static class Tools
         };
         SetUnhandledExceptionFilter(nativeFilterDelegate);
     }
-
-    [DllImport("user32.dll")]
-    private static extern short GetAsyncKeyState(int vKey);
-
-    public static bool IsKeyPressed(Keys key) => GetAsyncKeyState((int)key) < 0;
 }
