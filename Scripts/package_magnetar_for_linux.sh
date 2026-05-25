@@ -5,7 +5,7 @@
 # Dedicated Server plugin loader.
 #
 # Magnetar is headless: no GUI, no DXVK, no Steam overlay, no XDG menu
-# entry. The bundle just deploys the Interim apphost + managed deps +
+# entry. The bundle just deploys the MagnetarInterim apphost + managed deps +
 # libsteam_api.so into the user's XDG data dir, and the user invokes it
 # from their DS launch script.
 #
@@ -16,7 +16,7 @@
 # ~/.config/Magnetar/ for user-editable state, following XDG conventions):
 #
 #   MagnetarForLinux/
-#   ├── install.sh              Copies Magnetar/{Interim, Bin/, *.dll, *.so}
+#   ├── install.sh              Copies Magnetar/{MagnetarInterim, Bin/, *.dll, *.so}
 #   │                           into ~/.local/share/Magnetar/. Warns if
 #   │                           .NET 10 runtime is not installed.
 #   ├── uninstall.sh            Removes ~/.local/share/Magnetar/ entirely
@@ -25,11 +25,11 @@
 #   │                             config.xml, Sources/, Local/, Profiles/.
 #   ├── README.txt
 #   └── Magnetar/               Staging tree, see install.sh.
-#       ├── Magnetar               Convenience bash launcher (cd + exec
-#       │                          Interim). Deploys to
-#       │                          ~/.local/share/Magnetar/Magnetar
+#       ├── MagnetarInterim        Convenience bash launcher (cd + exec
+#       │                          Bin/MagnetarInterim). Deploys to
+#       │                          ~/.local/share/Magnetar/MagnetarInterim
 #       └── Bin/                   Framework-dependent publish output
-#                                  (Interim apphost + managed deps +
+#                                  (MagnetarInterim apphost + managed deps +
 #                                  Steamworks.NET.dll + libsteam_api.so).
 #                                  Deploys to ~/.local/share/Magnetar/Bin/
 #
@@ -93,7 +93,7 @@ echo "==> Output dir    : $OUTPUT_DIR"
 
 # ---- build & publish --------------------------------------------------------
 # Framework-dependent publish. The host must have .NET 10 installed; the
-# bundle's apphost (Bin/Interim) discovers it via the standard
+# bundle's apphost (Bin/MagnetarInterim) discovers it via the standard
 # FrameworkResolver search path. This keeps the bundle small and lets
 # users debug/profile with their stock dotnet install.
 
@@ -109,7 +109,7 @@ dotnet publish "$MAGNETAR_CSPROJ" \
     -p:DebugSymbols=false
 
 # Sanity check the publish output
-for required in Interim Interim.dll Interim.deps.json Interim.runtimeconfig.json libsteam_api.so Steamworks.NET.dll; do
+for required in MagnetarInterim MagnetarInterim.dll MagnetarInterim.deps.json MagnetarInterim.runtimeconfig.json libsteam_api.so Steamworks.NET.dll; do
     if [ ! -e "$MAGNETAR_PUBLISH_DIR/$required" ]; then
         echo "ERROR: missing $required in $MAGNETAR_PUBLISH_DIR" >&2
         exit 1
@@ -129,23 +129,23 @@ echo
 echo "==> Staging publish output -> Magnetar/Bin/"
 cp -a "$MAGNETAR_PUBLISH_DIR/." "$MAGNETAR_ROOT/Bin/"
 
-# ---- generate Magnetar/Magnetar launcher -----------------------------------
-# Lives at ~/.local/share/Magnetar/Magnetar. Sets the working directory
-# to the Bin dir (so libsteam_api.so is found via $ORIGIN / cwd) and
-# exec's the apphost. The host's stock .NET 10 runtime is discovered by
-# the apphost's normal FrameworkResolver search path.
+# ---- generate Magnetar/MagnetarInterim launcher ----------------------------
+# Lives at ~/.local/share/Magnetar/MagnetarInterim. Sets the working
+# directory to the Bin dir (so libsteam_api.so is found via $ORIGIN / cwd)
+# and exec's the apphost. The host's stock .NET 10 runtime is discovered
+# by the apphost's normal FrameworkResolver search path.
 
-cat > "$MAGNETAR_ROOT/Magnetar" <<'EOF'
+cat > "$MAGNETAR_ROOT/MagnetarInterim" <<'EOF'
 #!/usr/bin/env bash
-# Magnetar - convenience launcher for the dedicated-server plugin loader.
+# MagnetarInterim - convenience launcher for the dedicated-server plugin loader.
 # Use this from your dedicated-server launch script in place of
-# SpaceEngineersDedicated. The Interim apphost auto-detects the DS install
-# (see DS64 env var / Steam library scan) and applies plugin patches
-# before booting the server.
+# SpaceEngineersDedicated. The MagnetarInterim apphost auto-detects the DS
+# install (see DS64 env var / Steam library scan) and applies plugin
+# patches before booting the server.
 #
-# Usage: ~/.local/share/Magnetar/Magnetar [extra Interim args]
+# Usage: ~/.local/share/Magnetar/MagnetarInterim [extra MagnetarInterim args]
 #
-# Env-var overrides honoured by Interim:
+# Env-var overrides honoured by MagnetarInterim:
 #   DS64                 Explicit path to DedicatedServer64
 #   XDG_CONFIG_HOME      Overrides ~/.config base
 #   MAGNETAR_SAFE_MODE   Set to 1 to skip preloader patches
@@ -153,10 +153,10 @@ cat > "$MAGNETAR_ROOT/Magnetar" <<'EOF'
 set -euo pipefail
 
 PKG_DIR="$(cd "$(dirname "$0")" && pwd)"
-INTERIM="$PKG_DIR/Bin/Interim"
+INTERIM="$PKG_DIR/Bin/MagnetarInterim"
 
 if [ ! -x "$INTERIM" ]; then
-    echo "ERROR: Magnetar Interim binary not found at $INTERIM" >&2
+    echo "ERROR: MagnetarInterim binary not found at $INTERIM" >&2
     echo "Hint: run install.sh from the extracted MagnetarForLinux archive first." >&2
     exit 1
 fi
@@ -164,15 +164,15 @@ fi
 cd "$PKG_DIR/Bin"
 exec "$INTERIM" "$@"
 EOF
-chmod +x "$MAGNETAR_ROOT/Magnetar"
+chmod +x "$MAGNETAR_ROOT/MagnetarInterim"
 
 # ---- generate install.sh ----------------------------------------------------
 
 cat > "$PKG_ROOT/install.sh" <<'EOF'
 #!/usr/bin/env bash
 # install.sh - Deploys the bundled Magnetar/ tree into
-# ~/.local/share/Magnetar/ (Bin/ and Magnetar launcher). Warns (does not
-# fail) if the host doesn't appear to have .NET 10 installed.
+# ~/.local/share/Magnetar/ (Bin/ and MagnetarInterim launcher). Warns
+# (does not fail) if the host doesn't appear to have .NET 10 installed.
 #
 # Usage:   ./install.sh
 # Env-var overrides:
@@ -190,8 +190,8 @@ if [ ! -d "$SRC" ]; then
     exit 1
 fi
 
-if pgrep -x Interim >/dev/null 2>&1; then
-    echo "ERROR: Interim is running. Stop it before deploying (pkill -x Interim)." >&2
+if pgrep -x MagnetarInterim >/dev/null 2>&1; then
+    echo "ERROR: MagnetarInterim is running. Stop it before deploying (pkill -x MagnetarInterim)." >&2
     exit 1
 fi
 
@@ -214,13 +214,13 @@ if [ -d "$SRC/Bin" ]; then
     echo "  Replaced $DATA_DST/Bin"
 fi
 
-cp -f "$SRC/Magnetar" "$DATA_DST/Magnetar"
-chmod +x "$DATA_DST/Magnetar"
-echo "  Updated  $DATA_DST/Magnetar"
+cp -f "$SRC/MagnetarInterim" "$DATA_DST/MagnetarInterim"
+chmod +x "$DATA_DST/MagnetarInterim"
+echo "  Updated  $DATA_DST/MagnetarInterim"
 
 echo
-echo "Done. Launch the dedicated server through Magnetar with:"
-echo "    $DATA_DST/Magnetar"
+echo "Done. Launch the dedicated server through MagnetarInterim with:"
+echo "    $DATA_DST/MagnetarInterim"
 EOF
 chmod +x "$PKG_ROOT/install.sh"
 
@@ -245,8 +245,8 @@ set -euo pipefail
 DATA_DST="${MAGNETAR_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/Magnetar}"
 DST="${MAGNETAR_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/Magnetar}"
 
-if pgrep -x Interim >/dev/null 2>&1; then
-    echo "ERROR: Interim is running. Stop it before uninstalling (pkill -x Interim)." >&2
+if pgrep -x MagnetarInterim >/dev/null 2>&1; then
+    echo "ERROR: MagnetarInterim is running. Stop it before uninstalling (pkill -x MagnetarInterim)." >&2
     exit 1
 fi
 
@@ -314,7 +314,7 @@ MagnetarForLinux ($BUILD_DATE.$GIT_HASH)
 ========================================
 
 Magnetar is a plugin and mod loader for the Space Engineers Dedicated
-Server on Linux. This bundle ships the Interim apphost as a
+Server on Linux. This bundle ships the MagnetarInterim apphost as a
 framework-dependent .NET 10 publish; the .NET 10 runtime is required to
 be installed system-wide on the host.
 
@@ -334,7 +334,7 @@ Quick start
        ./install.sh
 3. Launch the dedicated server through Magnetar in place of
    SpaceEngineersDedicated:
-       ~/.local/share/Magnetar/Magnetar -console
+       ~/.local/share/Magnetar/MagnetarInterim -console
 
 Magnetar auto-detects the DS install (DS64 env var override, Steam
 client launch args, or Steam library scan). User state lives under
@@ -351,9 +351,9 @@ Files
   uninstall.sh      Removes binaries; preserves user state.
   README.txt        This file.
   Magnetar/         Staging source tree:
-    Magnetar           Bash launcher (cd + exec Bin/Interim).
-                       Deploys to ~/.local/share/Magnetar/Magnetar.
-    Bin/               Framework-dependent publish output (Interim
+    MagnetarInterim    Bash launcher (cd + exec Bin/MagnetarInterim).
+                       Deploys to ~/.local/share/Magnetar/MagnetarInterim.
+    Bin/               Framework-dependent publish output (MagnetarInterim
                        apphost, managed deps, Steamworks.NET.dll,
                        libsteam_api.so).
                        Deploys to ~/.local/share/Magnetar/Bin/.

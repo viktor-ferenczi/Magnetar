@@ -3,7 +3,7 @@
 #
 # Magnetar Linux build orchestrator. Populates build/Libraries/ with the
 # managed and native dependencies that Legacy.csproj's AfterBuild and
-# AfterPublish targets copy next to the Interim apphost.
+# AfterPublish targets copy next to the MagnetarInterim apphost.
 #
 # Magnetar targets the Space Engineers Dedicated Server (headless), so it
 # bundles:

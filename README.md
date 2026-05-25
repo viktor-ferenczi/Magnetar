@@ -8,8 +8,8 @@ no Windows-service host.
 ## Status
 
 Linux-only. The Windows-loader and Modern (Avalonia) UI sources from the
-upstream Pulsar tree have been removed. The remaining launcher (`Interim`)
-runs the dedicated server on .NET 10 via
+upstream Pulsar tree have been removed. The remaining launcher
+(`MagnetarInterim`) runs the dedicated server on .NET 10 via
 [se-dotnet-compat](https://github.com/viktor-ferenczi/se-dotnet-compat).
 
 ## Building
@@ -51,14 +51,14 @@ dotnet publish -c Release Legacy/Legacy.csproj \
 ```
 
 The `Legacy.csproj` `AfterBuild` / `AfterPublish` targets copy
-`build/Libraries/*` next to the produced `Interim` apphost; if that
-folder is missing the build fails fast with a clear message.
+`build/Libraries/*` next to the produced `MagnetarInterim` apphost; if
+that folder is missing the build fails fast with a clear message.
 
 ## Layout
 
 | Path                         | Purpose                                                           |
 | ---------------------------- | ----------------------------------------------------------------- |
-| `Legacy/`                    | Launcher (`Interim` apphost) — entry point, preloader, patches    |
+| `Legacy/`                    | Launcher (`MagnetarInterim` apphost) — entry point, preloader, patches |
 | `Shared/`                    | Cross-project plugin loader / config / network code (netstandard2.0) |
 | `Updater/`                   | Out-of-process updater binary                                     |
 | `Compiler/`                  | Roslyn-based on-disk source plugin compiler                       |
@@ -91,7 +91,7 @@ folder is missing the build fails fast with a clear message.
 Run the launcher in place of `SpaceEngineersDedicated.exe`:
 
 ```sh
-~/.local/share/Magnetar/Interim
+~/.local/share/Magnetar/MagnetarInterim
 ```
 
 Magnetar resolves the DS install, applies any preloader patches, loads

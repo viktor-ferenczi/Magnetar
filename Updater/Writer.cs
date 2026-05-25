@@ -11,13 +11,13 @@ internal static class Writer
     private const string Magnetar = "Magnetar";
     private const int MaxFiles = 15;
 
-    // Magnetar ships a single Linux launcher (Interim.dll/.exe), no Modern
+    // Magnetar ships a single Linux launcher (MagnetarInterim.dll/.exe), no Modern
     // or Legacy variants. "Modern" stays in Preserve only for backward
     // compatibility with old install layouts.
-    private static readonly HashSet<string> Preserve = ["Legacy", "Interim", "Modern"];
+    private static readonly HashSet<string> Preserve = ["MagnetarLegacy", "MagnetarInterim", "Modern"];
     private static readonly HashSet<string> Check =
     [
-        "Interim.dll",
+        "MagnetarInterim.dll",
         "LICENSE",
     ];
 

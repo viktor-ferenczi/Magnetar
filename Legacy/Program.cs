@@ -31,7 +31,7 @@ static class Program
     static void Main(string[] args)
     {
         string baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        string libraryDir = Path.Combine(baseDir, "Libraries", "Interim");
+        string libraryDir = Path.Combine(baseDir, "Libraries", "MagnetarInterim");
         string runtimeDir = RuntimeEnvironment.GetRuntimeDirectory();
 
         // Preload every bundled native library and register a single
