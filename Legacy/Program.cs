@@ -161,6 +161,20 @@ static class Program
             Environment.Exit(1);
         }
 
+        // Publish the resolved game-install root to plugins running in this
+        // process. The LinuxCompat preloader reads SPACE_ENGINEERS_ROOT to
+        // locate native libraries (Havok, D3DCompiler shim, etc.) under
+        // DedicatedServer64/ or Bin64/. Without it the plugin logs a warning
+        // and skips wrapper init, which later trips a Havok load failure.
+        // We point at the parent so the plugin's existing probe
+        // (DedicatedServer64 -> Bin64 fallback) keeps working unchanged.
+        if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SPACE_ENGINEERS_ROOT")))
+        {
+            string gameRoot = Path.GetDirectoryName(ds64Dir);
+            if (!string.IsNullOrEmpty(gameRoot))
+                Environment.SetEnvironmentVariable("SPACE_ENGINEERS_ROOT", gameRoot);
+        }
+
         string modDir = Path.Combine(
             ds64Dir,
             "..", "..", "..", "workshop", "content",
