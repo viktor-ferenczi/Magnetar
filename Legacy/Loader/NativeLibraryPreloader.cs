@@ -20,8 +20,16 @@ namespace Pulsar.Legacy.Loader;
 /// registration: the ResolvingUnmanagedDll hook installed below fires for
 /// every ALC (existing and future).
 ///
-/// The dedicated server runs headless: no SDL, no DXVK, no EOS, no FFmpeg.
-/// The only native dependency Magnetar bundles is libsteam_api.so.
+/// The dedicated server runs headless: no SDL, no DXVK, no FFmpeg.
+/// EOS is needed even with Steam networking because
+/// MySteamService.UpdateNetworkThread drives MyEOSNetworking on the network
+/// thread (EOS_Initialize on the very first tick), and the bundled VRage.EOS
+/// has a [DllImport("EOSSDK-Shipping.dll")] that has to resolve to the Linux
+/// libEOSSDK-Linux-Shipping.so. The native physics wrappers (Havok /
+/// RecastDetour / VRage.Native) are PE-loader replacements for the Windows
+/// DLLs of the same names; the se-linux-compat plugin still does an explicit
+/// Init call on each, but their DllImport sites also need the alias here so
+/// the runtime can resolve them from any AssemblyLoadContext.
 /// </summary>
 internal static class NativeLibraryPreloader
 {
@@ -41,6 +49,18 @@ internal static class NativeLibraryPreloader
         // Steamworks (Magnetar's bundled Steamworks.NET.dll).
         ("steam_api64",     "libsteam_api.so"),
         ("steam_api64.dll", "libsteam_api.so"),
+
+        // Epic Online Services SDK (VRage.EOS / Epic.OnlineServices).
+        // Required even though the DS uses Steam networking — MyEOSNetworking
+        // is initialized from MySteamService.UpdateNetworkThread.
+        ("EOSSDK-Shipping",     "libEOSSDK-Linux-Shipping.so"),
+        ("EOSSDK-Shipping.dll", "libEOSSDK-Linux-Shipping.so"),
+
+        // se-linux-compat PE-loader wrappers for the Havok / RecastDetour /
+        // VRage.Native Windows DLLs.
+        ("Havok.dll",        "libHavok.so"),
+        ("RecastDetour.dll", "libRecastDetour.so"),
+        ("VRage.Native.dll", "libVRageNative.so"),
     };
 
     private const int RTLD_NOW    = 0x2;

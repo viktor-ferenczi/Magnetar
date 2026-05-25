@@ -6,11 +6,19 @@
 # AfterPublish targets copy next to the Interim apphost.
 #
 # Magnetar targets the Space Engineers Dedicated Server (headless), so it
-# only bundles:
-#   * Steamworks.NET.dll  - built from rlabrecque/Steamworks.NET
-#   * libsteam_api.so     - the Linux Steamworks SDK shared library
-#                           (proprietary blob; supply it via Vendor/ or
-#                           a sibling Pulsar checkout - see below)
+# bundles:
+#   * Steamworks.NET.dll              - built from rlabrecque/Steamworks.NET
+#   * libsteam_api.so                 - Linux Steamworks SDK shared library
+#                                       (proprietary blob; supply via Vendor/
+#                                       or a sibling Pulsar checkout)
+#   * libEOSSDK-Linux-Shipping.so     - Epic Online Services SDK; needed
+#                                       because MySteamService.UpdateNetwork-
+#                                       Thread drives MyEOSNetworking even
+#                                       under Steam-only networking
+#   * libHavok.so / libRecastDetour.so / libVRageNative.so
+#                                     - PE-loader replacements for the
+#                                       Windows native DLLs Keen ships; built
+#                                       from se-linux-compat/NativeWrappers
 #
 # After this script runs, build:
 #   dotnet build  -c Release Magnetar.sln
@@ -112,6 +120,67 @@ fi
 install -m 0755 "$STEAM_SO_SRC" "$LIBRARIES_DIR/libsteam_api.so"
 echo "  copied libsteam_api.so from $STEAM_SO_SRC"
 
+# ---- 2b. Linux compat native libraries --------------------------------------
+#
+# The dedicated server reaches into native code that on Windows lives in
+# Havok.dll / RecastDetour.dll / VRage.Native.dll (PE-loaded by Keen) and
+# EOSSDK-Shipping.dll (Epic SDK, called from MySteamService.UpdateNetworkThread
+# even with Steam-only networking). Linux replacements have to be bundled
+# next to the apphost so NativeLibraryPreloader.cs can dlopen them.
+#
+# Sources are external to the Magnetar repo:
+#   * EOSSDK:               Pulsar/Vendor/libEOSSDK-Linux-Shipping.so
+#                          (the Epic SDK redistributable; Pulsar tracks it)
+#   * Havok/RecastDetour/
+#     VRageNative:         se-linux-compat/NativeWrappers/build/lib*.so
+#                          (built from se-linux-compat sources)
+#
+# Per-library env overrides: $LIBEOSSDK_SO, $LIBHAVOK_SO, $LIBRECASTDETOUR_SO,
+# $LIBVRAGENATIVE_SO. Otherwise probed under Vendor/ then the sibling Pulsar
+# / se-linux-compat checkouts.
+
+echo
+echo "############################################################"
+echo "# build: Linux-compat native libraries"
+echo "############################################################"
+
+PULSAR_VENDOR="${PULSAR_VENDOR:-$MAGNETAR_REPO_DIR/../Pulsar/Vendor}"
+LINUXCOMPAT_NATIVE="${LINUXCOMPAT_NATIVE:-$MAGNETAR_REPO_DIR/../se-linux-compat/NativeWrappers/build}"
+
+stage_native() {
+    local soname="$1"
+    local env_override="$2"
+    shift 2
+    local src=""
+    for candidate in "$env_override" "$MAGNETAR_REPO_DIR/Vendor/$soname" "$@"; do
+        if [ -n "$candidate" ] && [ -f "$candidate" ]; then
+            src="$candidate"
+            break
+        fi
+    done
+    if [ -z "$src" ]; then
+        echo "ERROR: $soname not found." >&2
+        echo "       Set the override env var or drop the file at one of:" >&2
+        echo "         $MAGNETAR_REPO_DIR/Vendor/$soname" >&2
+        for c in "$@"; do echo "         $c" >&2; done
+        exit 1
+    fi
+    install -m 0755 "$src" "$LIBRARIES_DIR/$soname"
+    echo "  copied $soname from $src"
+}
+
+stage_native libEOSSDK-Linux-Shipping.so "${LIBEOSSDK_SO:-}" \
+    "$PULSAR_VENDOR/libEOSSDK-Linux-Shipping.so"
+
+stage_native libHavok.so "${LIBHAVOK_SO:-}" \
+    "$LINUXCOMPAT_NATIVE/libHavok.so"
+
+stage_native libRecastDetour.so "${LIBRECASTDETOUR_SO:-}" \
+    "$LINUXCOMPAT_NATIVE/libRecastDetour.so"
+
+stage_native libVRageNative.so "${LIBVRAGENATIVE_SO:-}" \
+    "$LINUXCOMPAT_NATIVE/libVRageNative.so"
+
 # ---- 3. Licenses ------------------------------------------------------------
 
 if [ -d "$LICENSES_SRC" ]; then
@@ -132,6 +201,10 @@ fi
 EXPECTED_FILES=(
     Steamworks.NET.dll
     libsteam_api.so
+    libEOSSDK-Linux-Shipping.so
+    libHavok.so
+    libRecastDetour.so
+    libVRageNative.so
 )
 
 MISSING=0
