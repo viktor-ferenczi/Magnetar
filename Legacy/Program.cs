@@ -137,8 +137,8 @@ static class Program
         [
             new RemoteHubConfig()
             {
-                Name = "PluginHub-DS",
-                Repo = "viktor-ferenczi/PluginHub-DS",
+                Name = "MagnetarHub",
+                Repo = "viktor-ferenczi/MagnetarHub",
                 Branch = "main",
                 Enabled = true,
                 Hash = null,
