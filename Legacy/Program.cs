@@ -69,10 +69,19 @@ static class Program
         Environment.CurrentDirectory = baseDir;
 
         var asmName = Assembly.GetExecutingAssembly().GetName();
-        string pulsarDir = Path.Combine(baseDir, asmName.Name);
+        string pulsarDir = GetConfigOverride(baseDir);
 
-        if (!Directory.Exists(pulsarDir))
-            pulsarDir = Path.Combine(baseDir, "Legacy");
+        if (pulsarDir is not null)
+        {
+            Directory.CreateDirectory(pulsarDir);
+        }
+        else
+        {
+            pulsarDir = Path.Combine(baseDir, asmName.Name);
+
+            if (!Directory.Exists(pulsarDir))
+                pulsarDir = Path.Combine(baseDir, "Legacy");
+        }
 
         LogFile.Init(pulsarDir);
         LogFile.WriteLine($"Starting Magnetar v{asmName.Version.ToString(3)}");
@@ -80,6 +89,24 @@ static class Program
         Flags.LogFlags();
 
         ConfigManager.EarlyInit(pulsarDir);
+    }
+
+    private static string GetConfigOverride(string baseDir)
+    {
+        string[] args = Environment.GetCommandLineArgs();
+        int index = Array.FindIndex(
+            args,
+            arg => arg.Equals("-config", StringComparison.OrdinalIgnoreCase)
+        );
+
+        if (index < 0 || index >= args.Length - 1)
+            return null;
+
+        string path = args[index + 1];
+        if (!Path.IsPathRooted(path))
+            path = Path.Combine(baseDir, path);
+
+        return Path.GetFullPath(path);
     }
 
     private static Updater TryUpdate(string baseDir)
