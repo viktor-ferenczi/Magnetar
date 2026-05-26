@@ -20,6 +20,9 @@ public class Loader
     private readonly CoreConfig config;
     private readonly ProfilesConfig profiles;
 
+    // Plugins loaded without being explicitly enabled in the current profile.
+    private readonly List<string> implicitPluginIds = [];
+
     public Loader(string statsServer, string[] forceEnable = null)
     {
         ConfigManager manager = ConfigManager.Instance;
@@ -46,9 +49,6 @@ public class Loader
         if (Flags.CheckAllPlugins)
             debugCompileResults.Append("Plugins that failed to compile:").AppendLine();
 
-        // Plugins loaded without being explicitly enabled in the current profile.
-        int implicitlyLoaded = 0;
-
         // FIXME: Treat as a plugin dependency in the future.
         foreach (string id in forceEnable ?? [])
         {
@@ -58,7 +58,7 @@ public class Loader
             )
             {
                 Plugins.Add((data, plugin));
-                implicitlyLoaded++;
+                implicitPluginIds.Add(id);
                 continue;
             }
 
@@ -98,7 +98,7 @@ public class Loader
         if (Flags.CheckAllPlugins)
             LogFile.WriteLine(debugCompileResults.ToString());
 
-        PluginProgress.ReportSummary(Plugins.Count, implicitlyLoaded);
+        PluginProgress.ReportSummary(Plugins.Count, implicitPluginIds.Count);
 
         Task.Run(ReportEnabledPlugins);
     }
@@ -110,8 +110,9 @@ public class Loader
 
         LogFile.WriteLine("Reporting plugin usage");
 
-        // Skip local plugins, keep only enabled ones
-        string[] trackablePluginIds = [.. profiles.Current.GetPluginIDs(false)];
+        // Skip local plugins, keep enabled ones plus implicitly loaded core plugins
+        string[] trackablePluginIds =
+            [.. profiles.Current.GetPluginIDs(false).Concat(implicitPluginIds).Distinct()];
 
         // Config has already been validated at this point so all enabled plugins will have list items
         // FIXME: Move into a background thread
