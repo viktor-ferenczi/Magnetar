@@ -1,0 +1,272 @@
+using System;
+using PluginSdk.Tools;
+
+namespace PluginSdk.Config
+{
+    /// <summary>
+    /// Marker namespace anchor. The individual attribute classes below
+    /// annotate a <see cref="PluginConfig"/>-derived class and its public
+    /// properties so the server can discover, validate, remotely manage and
+    /// lay out each option in an external Web UI.
+    ///
+    /// <para><b>Layout model</b></para>
+    /// <para>
+    /// Layout containers (<see cref="SectionAttribute"/>,
+    /// <see cref="TabAttribute"/>, <see cref="ColumnAttribute"/>) are
+    /// declared on the config class itself and form a tree via
+    /// <c>Id</c> / <c>Parent</c> ids. Each option property may set
+    /// <see cref="ConfigOptionAttribute.Parent"/> to attach itself to a
+    /// container. If no layout containers are declared and no option sets
+    /// <c>Parent</c>, the UI falls back to a flat vbox of options in
+    /// declaration order — layout is entirely optional.
+    /// </para>
+    /// </summary>
+    public static class ConfigAttributes
+    {
+        // intentionally empty - aggregator for documentation cross-refs
+    }
+
+    /// <summary>
+    /// Base class for layout container attributes. Applied to a config class
+    /// to declare one node of the layout tree.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
+    public abstract class LayoutContainerAttribute : Attribute
+    {
+        /// <summary>Unique id of this container within the config class.</summary>
+        public string Id { get; }
+
+        /// <summary>Id of the parent container, or <c>null</c> for a root node.</summary>
+        public string Parent { get; }
+
+        /// <summary>Human-readable caption shown in the UI.</summary>
+        public string Caption { get; }
+
+        protected LayoutContainerAttribute(string id, string parent, string caption)
+        {
+            Id = id;
+            Parent = parent;
+            Caption = caption;
+        }
+
+        /// <summary>Layout kind: <c>section</c>, <c>tab</c> or <c>column</c>.</summary>
+        public abstract string Kind { get; }
+    }
+
+    /// <summary>
+    /// Groups options inside a captioned section (group box). Sections with
+    /// the same parent stack vertically.
+    /// </summary>
+    public sealed class SectionAttribute : LayoutContainerAttribute
+    {
+        public SectionAttribute(string id, string parent = null, string caption = null)
+            : base(id, parent, caption) { }
+        public override string Kind => "section";
+    }
+
+    /// <summary>
+    /// A tab in a tab container. Tabs sharing the same parent are siblings of
+    /// a tab strip — only one is selected at a time.
+    /// </summary>
+    public sealed class TabAttribute : LayoutContainerAttribute
+    {
+        public TabAttribute(string id, string parent = null, string caption = null)
+            : base(id, parent, caption) { }
+        public override string Kind => "tab";
+    }
+
+    /// <summary>
+    /// A vertical column. Columns sharing the same parent lay out
+    /// horizontally side-by-side.
+    /// </summary>
+    public sealed class ColumnAttribute : LayoutContainerAttribute
+    {
+        public ColumnAttribute(string id, string parent = null, string caption = null)
+            : base(id, parent, caption) { }
+        public override string Kind => "column";
+    }
+
+    /// <summary>Base class for every config option attribute.</summary>
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public abstract class ConfigOptionAttribute : Attribute
+    {
+        public string Description { get; }
+
+        /// <summary>
+        /// Optional layout container id this option should be placed in.
+        /// If <c>null</c> the option appears at the root of the UI tree.
+        /// </summary>
+        public string Parent { get; set; }
+
+        protected ConfigOptionAttribute(string description)
+        {
+            Description = description;
+        }
+    }
+
+    /// <summary>Marks a <c>bool</c> configuration option.</summary>
+    public sealed class BoolOptionAttribute : ConfigOptionAttribute
+    {
+        public BoolOptionAttribute(string description = null) : base(description) { }
+    }
+
+    /// <summary>Marks a 32-bit <c>int</c> configuration option with an optional inclusive range.</summary>
+    public sealed class IntOptionAttribute : ConfigOptionAttribute
+    {
+        public int Min { get; }
+        public int Max { get; }
+
+        public IntOptionAttribute(int min = int.MinValue, int max = int.MaxValue, string description = null)
+            : base(description)
+        {
+            Min = min;
+            Max = max;
+        }
+    }
+
+    /// <summary>Marks a 64-bit <c>long</c> configuration option with an optional inclusive range.</summary>
+    public sealed class LongOptionAttribute : ConfigOptionAttribute
+    {
+        public long Min { get; }
+        public long Max { get; }
+
+        public LongOptionAttribute(long min = long.MinValue, long max = long.MaxValue, string description = null)
+            : base(description)
+        {
+            Min = min;
+            Max = max;
+        }
+    }
+
+    /// <summary>Marks a <c>float</c> configuration option with an optional inclusive range.</summary>
+    public sealed class FloatOptionAttribute : ConfigOptionAttribute
+    {
+        public float Min { get; }
+        public float Max { get; }
+
+        public FloatOptionAttribute(float min = float.NegativeInfinity, float max = float.PositiveInfinity, string description = null)
+            : base(description)
+        {
+            Min = min;
+            Max = max;
+        }
+    }
+
+    /// <summary>Marks a <c>double</c> configuration option with an optional inclusive range.</summary>
+    public sealed class DoubleOptionAttribute : ConfigOptionAttribute
+    {
+        public double Min { get; }
+        public double Max { get; }
+
+        public DoubleOptionAttribute(double min = double.NegativeInfinity, double max = double.PositiveInfinity, string description = null)
+            : base(description)
+        {
+            Min = min;
+            Max = max;
+        }
+    }
+
+    /// <summary>
+    /// Marks a <c>string</c> configuration option. <paramref name="maxLength"/>
+    /// of <c>0</c> means unlimited; <paramref name="pattern"/> is an optional
+    /// regular expression that the value must fully match.
+    /// </summary>
+    public sealed class StringOptionAttribute : ConfigOptionAttribute
+    {
+        public int MaxLength { get; }
+        public string Pattern { get; }
+
+        public StringOptionAttribute(int maxLength = 0, string pattern = null, string description = null)
+            : base(description)
+        {
+            MaxLength = maxLength;
+            Pattern = pattern;
+        }
+    }
+
+    /// <summary>
+    /// Marks a <c>List&lt;T&gt;</c> configuration option. The element type
+    /// <c>T</c> must be one of the supported scalar types or a Struct.
+    /// <paramref name="maxCount"/> of <c>0</c> means unlimited.
+    ///
+    /// <para>
+    /// When the element type is a Struct, set
+    /// <see cref="TreeParentField"/> to the name of a struct member that
+    /// points to the id of its parent element — the UI will then render the
+    /// list as a tree instead of a flat list.
+    /// </para>
+    /// </summary>
+    public sealed class ListOptionAttribute : ConfigOptionAttribute
+    {
+        public int MaxCount { get; }
+
+        /// <summary>
+        /// Name of a struct member on the element type that references the
+        /// parent element's id. Triggers a tree view in the UI when set.
+        /// </summary>
+        public string TreeParentField { get; set; }
+
+        public ListOptionAttribute(int maxCount = 0, string description = null)
+            : base(description)
+        {
+            MaxCount = maxCount;
+        }
+    }
+
+    /// <summary>
+    /// Marks a <see cref="SerializableDictionary{TKey,TValue}"/> configuration
+    /// option. The key type must be <c>string</c>, <c>int</c> or <c>long</c>;
+    /// the value type must be one of the supported scalar types.
+    /// <paramref name="maxCount"/> of <c>0</c> means unlimited.
+    ///
+    /// <para>
+    /// When the value type is a Struct, set
+    /// <see cref="TreeParentField"/> to the name of a struct member that
+    /// references another entry's key — the UI will then render the
+    /// dictionary as a tree instead of a flat key/value list.
+    /// </para>
+    /// </summary>
+    public sealed class DictOptionAttribute : ConfigOptionAttribute
+    {
+        public int MaxCount { get; }
+
+        /// <summary>
+        /// Name of a struct member on the value type that references the
+        /// parent entry's key. Triggers a tree view in the UI when set.
+        /// </summary>
+        public string TreeParentField { get; set; }
+
+        public DictOptionAttribute(int maxCount = 0, string description = null)
+            : base(description)
+        {
+            MaxCount = maxCount;
+        }
+    }
+
+    /// <summary>
+    /// Marks a configuration option whose type is a user-defined Struct, or a
+    /// <c>List&lt;T&gt;</c> of such a Struct. Annotate the struct's public
+    /// members with <see cref="StructMemberAttribute"/>.
+    /// </summary>
+    public sealed class StructOptionAttribute : ConfigOptionAttribute
+    {
+        public StructOptionAttribute(string description = null) : base(description) { }
+    }
+
+    /// <summary>
+    /// Marks a public field or property inside a Struct that is used as a
+    /// configuration value. Carries a description for the UI; constraint
+    /// validation for struct members is intentionally simple and
+    /// metadata-only.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
+    public sealed class StructMemberAttribute : Attribute
+    {
+        public string Description { get; }
+
+        public StructMemberAttribute(string description = null)
+        {
+            Description = description;
+        }
+    }
+}
