@@ -1,7 +1,10 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using PluginSdk.Config;
 using PluginSdk.Tools;
+using VRage;
+using VRageMath;
 using Xunit;
 
 namespace PluginSdk.Tests
@@ -99,6 +102,18 @@ namespace PluginSdk.Tests
                     Map = new SerializableDictionary<string, double> { ["k"] = 1.5 },
                     Inner = new TestStruct { Integer = 9, Text = "inner" },
                 },
+
+                SolidColor = new Color((byte)200, (byte)100, (byte)50, (byte)255),
+                TintColor = new Color((byte)16, (byte)32, (byte)64, (byte)200),
+                UvOffset = new Vector2D(0.125, -0.5),
+                WorldOffset = new Vector3D(-100.25, 200.5, 300.75),
+                TileCoord = new Vector2I(-7, 13),
+                GridSize = new Vector3I(5, 5, 5),
+                Facing = Base6Directions.Direction.Backward,
+                SpawnPose = new MyPositionAndOrientation(
+                    new Vector3D(1000.5, 2000.25, 3000.125),
+                    Vector3.Right,
+                    Vector3.Up),
             };
         }
 
@@ -161,6 +176,17 @@ namespace PluginSdk.Tests
             Assert.Equal(expected.Nested.Map, actual.Nested.Map);
             Assert.Equal(expected.Nested.Inner.Integer, actual.Nested.Inner.Integer);
             Assert.Equal(expected.Nested.Inner.Text, actual.Nested.Inner.Text);
+
+            Assert.Equal(expected.SolidColor, actual.SolidColor);
+            Assert.Equal(expected.TintColor, actual.TintColor);
+            Assert.Equal(expected.UvOffset, actual.UvOffset);
+            Assert.Equal(expected.WorldOffset, actual.WorldOffset);
+            Assert.Equal(expected.TileCoord, actual.TileCoord);
+            Assert.Equal(expected.GridSize, actual.GridSize);
+            Assert.Equal(expected.Facing, actual.Facing);
+            Assert.Equal(expected.SpawnPose.Position, actual.SpawnPose.Position);
+            Assert.Equal(expected.SpawnPose.Forward, actual.SpawnPose.Forward);
+            Assert.Equal(expected.SpawnPose.Up, actual.SpawnPose.Up);
         }
 
         [Fact]
@@ -244,6 +270,195 @@ namespace PluginSdk.Tests
             {
                 if (File.Exists(path)) File.Delete(path);
             }
+        }
+    }
+
+    /// <summary>
+    /// Tests that pin down the on-disk and on-wire shape of the VRage value
+    /// types — these bypass the generic XmlSerializer and System.Text.Json
+    /// paths, so their format is part of the library's contract.
+    /// </summary>
+    public class TypeSerializationTests
+    {
+        private static string WriteXml(TestConfig c)
+        {
+            var path = Path.Combine(Path.GetTempPath(), $"magnetar-se-{System.Guid.NewGuid():N}.xml");
+            try
+            {
+                ConfigStorage.SaveXml(c, path);
+                return File.ReadAllText(path);
+            }
+            finally
+            {
+                if (File.Exists(path)) File.Delete(path);
+            }
+        }
+
+        [Fact]
+        public void Xml_Color_UsesHexRgbaFormat()
+        {
+            var c = new TestConfig { SolidColor = new Color((byte)0xAB, (byte)0xCD, (byte)0xEF, (byte)0xFF) };
+            var text = WriteXml(c);
+            Assert.Contains("<SolidColor>#ABCDEFFF</SolidColor>", text);
+        }
+
+        [Fact]
+        public void Xml_Vectors_UseSpaceSeparatedComponents()
+        {
+            var c = new TestConfig
+            {
+                UvOffset = new Vector2D(1.5, -2.5),
+                WorldOffset = new Vector3D(10, 20, 30),
+                TileCoord = new Vector2I(-1, 2),
+                GridSize = new Vector3I(3, 4, 5),
+            };
+            var text = WriteXml(c);
+            // The exact double formatting is G17, but the components must be
+            // space-separated and in declaration order.
+            Assert.Matches(@"<UvOffset>1\.5\S* -2\.5\S*</UvOffset>", text);
+            Assert.Matches(@"<WorldOffset>10\S* 20\S* 30\S*</WorldOffset>", text);
+            Assert.Contains("<TileCoord>-1 2</TileCoord>", text);
+            Assert.Contains("<GridSize>3 4 5</GridSize>", text);
+        }
+
+        [Fact]
+        public void Xml_Direction_StoredByMemberName()
+        {
+            var c = new TestConfig { Facing = Base6Directions.Direction.Backward };
+            var text = WriteXml(c);
+            Assert.Contains("<Facing>Backward</Facing>", text);
+        }
+
+        [Fact]
+        public void Xml_PositionAndOrientation_HasNestedPositionForwardUpOnly()
+        {
+            var c = new TestConfig
+            {
+                SpawnPose = new MyPositionAndOrientation(new Vector3D(1, 2, 3), Vector3.Forward, Vector3.Up),
+            };
+            var text = WriteXml(c);
+            Assert.Contains("<SpawnPose>", text);
+            Assert.Contains("<Position>", text);
+            Assert.Contains("<Forward>", text);
+            Assert.Contains("<Up>", text);
+            // The derived Orientation quaternion must never appear.
+            Assert.DoesNotContain("<Orientation>", text);
+        }
+
+        [Fact]
+        public void Xml_DefaultValueIsOmitted()
+        {
+            // SpawnPose default has a non-zero Forward/Up; setting it back to
+            // the default must round-trip as "no element written".
+            var defaults = new TestConfig();
+            var c = new TestConfig { SpawnPose = defaults.SpawnPose };
+            var text = WriteXml(c);
+            Assert.DoesNotContain("<SpawnPose>", text);
+        }
+
+        [Fact]
+        public void Xml_Color_AcceptsBothRgbAndRgbaInputs()
+        {
+            // Hand-crafted XML: a 6-hex form (no alpha) must default alpha to 255;
+            // an 8-hex form must take the alpha verbatim.
+            var path = Path.Combine(Path.GetTempPath(), $"magnetar-color-mix-{System.Guid.NewGuid():N}.xml");
+            File.WriteAllText(path,
+                "<?xml version=\"1.0\"?>\n" +
+                "<TestConfig>" +
+                "<SolidColor>#102030</SolidColor>" +
+                "<TintColor>#10203040</TintColor>" +
+                "</TestConfig>");
+            try
+            {
+                var loaded = ConfigStorage.LoadXml<TestConfig>(path);
+                Assert.Equal((byte)0x10, loaded.SolidColor.R);
+                Assert.Equal((byte)0x20, loaded.SolidColor.G);
+                Assert.Equal((byte)0x30, loaded.SolidColor.B);
+                Assert.Equal((byte)0xFF, loaded.SolidColor.A);
+                Assert.Equal((byte)0x40, loaded.TintColor.A);
+            }
+            finally
+            {
+                if (File.Exists(path)) File.Delete(path);
+            }
+        }
+
+        [Fact]
+        public void Json_Color_UsesHexString()
+        {
+            var c = new TestConfig { SolidColor = new Color((byte)1, (byte)2, (byte)3, (byte)255) };
+            var json = ConfigStorage.SaveJson(c);
+            using var doc = System.Text.Json.JsonDocument.Parse(json);
+            var solid = doc.RootElement.GetProperty("values").GetProperty("solidColor").GetString();
+            Assert.Equal("#010203FF", solid);
+        }
+
+        [Fact]
+        public void Json_Vector3D_UsesObjectShape()
+        {
+            var c = new TestConfig { WorldOffset = new Vector3D(1.5, 2.5, 3.5) };
+            var json = ConfigStorage.SaveJson(c);
+            using var doc = System.Text.Json.JsonDocument.Parse(json);
+            var v = doc.RootElement.GetProperty("values").GetProperty("worldOffset");
+            Assert.Equal(1.5, v.GetProperty("x").GetDouble());
+            Assert.Equal(2.5, v.GetProperty("y").GetDouble());
+            Assert.Equal(3.5, v.GetProperty("z").GetDouble());
+        }
+
+        [Fact]
+        public void Json_Direction_IsStringMemberName()
+        {
+            var c = new TestConfig { Facing = Base6Directions.Direction.Left };
+            var json = ConfigStorage.SaveJson(c);
+            using var doc = System.Text.Json.JsonDocument.Parse(json);
+            Assert.Equal("Left", doc.RootElement.GetProperty("values").GetProperty("facing").GetString());
+        }
+
+        [Fact]
+        public void Json_Pose_HasOnlyPositionForwardUp()
+        {
+            var c = new TestConfig
+            {
+                SpawnPose = new MyPositionAndOrientation(new Vector3D(1, 2, 3), Vector3.Forward, Vector3.Up),
+            };
+            var json = ConfigStorage.SaveJson(c);
+            using var doc = System.Text.Json.JsonDocument.Parse(json);
+            var pose = doc.RootElement.GetProperty("values").GetProperty("spawnPose");
+            Assert.True(pose.TryGetProperty("position", out _));
+            Assert.True(pose.TryGetProperty("forward", out _));
+            Assert.True(pose.TryGetProperty("up", out _));
+            Assert.False(pose.TryGetProperty("orientation", out _));
+        }
+
+        [Fact]
+        public void Schema_ColorOption_ExposesHasAlphaFlag()
+        {
+            var schema = ConfigSchema.Build(typeof(TestConfig));
+            var solid = schema.Properties.Single(p => p.Name == nameof(TestConfig.SolidColor));
+            var tint  = schema.Properties.Single(p => p.Name == nameof(TestConfig.TintColor));
+
+            Assert.Equal("color", solid.Type);
+            Assert.False(solid.HasAlpha);
+            Assert.Equal("color", tint.Type);
+            Assert.True(tint.HasAlpha);
+        }
+
+        [Fact]
+        public void Schema_VectorAndPoseAndDirection_HaveDistinctTypeNames()
+        {
+            var schema = ConfigSchema.Build(typeof(TestConfig));
+            Assert.Equal("vec2d",     schema.Properties.Single(p => p.Name == "UvOffset").Type);
+            Assert.Equal("vec3d",     schema.Properties.Single(p => p.Name == "WorldOffset").Type);
+            Assert.Equal("vec2i",     schema.Properties.Single(p => p.Name == "TileCoord").Type);
+            Assert.Equal("vec3i",     schema.Properties.Single(p => p.Name == "GridSize").Type);
+            Assert.Equal("pose",      schema.Properties.Single(p => p.Name == "SpawnPose").Type);
+
+            var dir = schema.Properties.Single(p => p.Name == "Facing");
+            Assert.Equal("direction", dir.Type);
+            // Direction values travel as enum names — the schema must surface the
+            // member list so the UI does not hard-code it.
+            Assert.Equal(nameof(Base6Directions.Direction), dir.EnumName);
+            Assert.True(schema.Enums.ContainsKey(nameof(Base6Directions.Direction)));
         }
     }
 }

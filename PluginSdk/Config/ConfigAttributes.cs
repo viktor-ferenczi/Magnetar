@@ -278,6 +278,81 @@ namespace PluginSdk.Config
     }
 
     /// <summary>
+    /// Color storage form used by <see cref="ColorOptionAttribute"/>. The value
+    /// is always stored as RGBA on disk and in memory; the format only selects
+    /// whether the UI exposes the alpha slider.
+    /// </summary>
+    public enum ColorFormat
+    {
+        /// <summary>Hide the alpha channel in the UI; alpha is forced to 255.</summary>
+        Rgb,
+        /// <summary>Expose the alpha channel in the UI.</summary>
+        Rgba,
+    }
+
+    /// <summary>
+    /// Marks a <see cref="VRageMath.Color"/> configuration option. The value is
+    /// always stored as RGBA (four bytes); <see cref="Format"/> only chooses
+    /// whether the UI shows the alpha control.
+    /// </summary>
+    public sealed class ColorOptionAttribute : ConfigOptionAttribute
+    {
+        public ColorFormat Format { get; }
+
+        public ColorOptionAttribute(ColorFormat format = ColorFormat.Rgba, string description = null)
+            : base(description)
+        {
+            Format = format;
+        }
+    }
+
+    /// <summary>Marks a <see cref="VRageMath.Vector2D"/> configuration option.</summary>
+    public sealed class Vector2DOptionAttribute : ConfigOptionAttribute
+    {
+        public Vector2DOptionAttribute(string description = null) : base(description) { }
+    }
+
+    /// <summary>Marks a <see cref="VRageMath.Vector3D"/> configuration option.</summary>
+    public sealed class Vector3DOptionAttribute : ConfigOptionAttribute
+    {
+        public Vector3DOptionAttribute(string description = null) : base(description) { }
+    }
+
+    /// <summary>Marks a <see cref="VRageMath.Vector2I"/> configuration option.</summary>
+    public sealed class Vector2IOptionAttribute : ConfigOptionAttribute
+    {
+        public Vector2IOptionAttribute(string description = null) : base(description) { }
+    }
+
+    /// <summary>Marks a <see cref="VRageMath.Vector3I"/> configuration option.</summary>
+    public sealed class Vector3IOptionAttribute : ConfigOptionAttribute
+    {
+        public Vector3IOptionAttribute(string description = null) : base(description) { }
+    }
+
+    /// <summary>
+    /// Marks a <see cref="VRageMath.Base6Directions.Direction"/> configuration
+    /// option. The value is stored by member name (Forward, Backward, Left,
+    /// Right, Up, Down) so storage is independent of the enum's underlying
+    /// integer ordering.
+    /// </summary>
+    public sealed class DirectionOptionAttribute : ConfigOptionAttribute
+    {
+        public DirectionOptionAttribute(string description = null) : base(description) { }
+    }
+
+    /// <summary>
+    /// Marks a <see cref="VRage.MyPositionAndOrientation"/> configuration
+    /// option. The UI exposes three editors — Position (Vector3D), Forward and
+    /// Up (Vector3 float each); the derived <c>Orientation</c> quaternion is
+    /// not surfaced.
+    /// </summary>
+    public sealed class PositionAndOrientationOptionAttribute : ConfigOptionAttribute
+    {
+        public PositionAndOrientationOptionAttribute(string description = null) : base(description) { }
+    }
+
+    /// <summary>
     /// Marks a public field or property inside a Struct that is used as a
     /// configuration value. Carries a description for the UI; constraint
     /// validation for struct members is intentionally simple and

@@ -32,17 +32,28 @@ namespace PluginSdk.Config
     /// </summary>
     public static class ConfigStorage
     {
-        private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
+        private static readonly JsonSerializerOptions JsonOptions = BuildJsonOptions();
+
+        private static JsonSerializerOptions BuildJsonOptions()
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DictionaryKeyPolicy = null,
-            IncludeFields = true,
-            WriteIndented = true,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                DictionaryKeyPolicy = null,
+                IncludeFields = true,
+                WriteIndented = true,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            };
             // Persist enum config values by member name, never as integers, so
-            // renumbering an enum does not silently change stored values.
-            Converters = { new JsonStringEnumConverter() },
-        };
+            // renumbering an enum does not silently change stored values. Also
+            // covers VRageMath.Base6Directions.Direction.
+            options.Converters.Add(new JsonStringEnumConverter());
+            // VRage value types — Color (hex string), Vector2D/3D, Vector2I/3I
+            // and MyPositionAndOrientation — need bespoke JSON shapes.
+            foreach (var converter in TypeSerialization.JsonConverters)
+                options.Converters.Add(converter);
+            return options;
+        }
 
         // -------- XML ---------------------------------------------------
 

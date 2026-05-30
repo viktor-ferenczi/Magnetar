@@ -335,6 +335,9 @@ namespace PluginSdk.Tests
                 "dictIntString", "dictIntDouble", "dictLongBool", "dictLongLong",
                 "quality", "qualityList",
                 "structValue", "structList", "treeNodes", "nested",
+                "solidColor", "tintColor",
+                "uvOffset", "worldOffset", "tileCoord", "gridSize",
+                "facing", "spawnPose",
             })
             {
                 Assert.True(values.TryGetProperty(name, out _), $"values is missing '{name}'");

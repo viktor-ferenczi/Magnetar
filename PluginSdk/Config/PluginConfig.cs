@@ -51,6 +51,14 @@ namespace PluginSdk.Config
     ///         A Struct may be used directly as a value or as the element
     ///         type of a <c>List&lt;T&gt;</c>, but <b>not</b> as a
     ///         Dictionary key.</description></item>
+    ///   <item><description>Built-in VRage value types: <c>Color</c> (always
+    ///         stored RGBA; the UI variant is selected by
+    ///         <see cref="ColorOptionAttribute"/>), <c>Vector2D</c>,
+    ///         <c>Vector3D</c>, <c>Vector2I</c>, <c>Vector3I</c>,
+    ///         <c>Base6Directions.Direction</c> (stored by member name) and
+    ///         <c>MyPositionAndOrientation</c> (only <c>Position</c>,
+    ///         <c>Forward</c> and <c>Up</c> are surfaced; the derived
+    ///         <c>Orientation</c> quaternion is not).</description></item>
     /// </list>
     ///
     /// <para><b>Layout</b></para>
@@ -182,6 +190,12 @@ namespace PluginSdk.Config
                 var defaultValue = prop.GetValue(defaults);
                 if (ValuesEqual(value, defaultValue)) continue;
 
+                if (TypeSerialization.IsHandled(prop.PropertyType))
+                {
+                    TypeSerialization.WriteXml(writer, prop.Name, value);
+                    continue;
+                }
+
                 var serializer = GetXmlSerializer(prop.PropertyType, prop.Name);
                 serializer.Serialize(writer, value, ns);
             }
@@ -201,8 +215,11 @@ namespace PluginSdk.Config
             {
                 if (reader.NodeType == XmlNodeType.Element && props.TryGetValue(reader.Name, out var prop))
                 {
-                    var serializer = GetXmlSerializer(prop.PropertyType, prop.Name);
-                    var value = serializer.Deserialize(reader);
+                    object value;
+                    if (TypeSerialization.IsHandled(prop.PropertyType))
+                        value = TypeSerialization.ReadXml(reader, prop.PropertyType);
+                    else
+                        value = GetXmlSerializer(prop.PropertyType, prop.Name).Deserialize(reader);
                     prop.SetValue(this, value);
                 }
                 else
@@ -277,6 +294,10 @@ namespace PluginSdk.Config
                 || t == typeof(DateTimeOffset) || t == typeof(TimeSpan)
                 || t == typeof(Guid))
                 return false;
+            // VRage value types (Color, Vector2D, ...) implement IEquatable<T>
+            // already — skip the field-by-field walk, which would also confuse
+            // itself on Color's aliased X/R, Y/G, Z/B properties.
+            if (TypeSerialization.IsHandled(t)) return false;
             return true;
         }
     }

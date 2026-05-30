@@ -7,6 +7,8 @@ layout tree. Copy and prune for your plugin.
 using System.Collections.Generic;
 using PluginSdk.Config;
 using PluginSdk.Tools;
+using VRage;
+using VRageMath;
 
 namespace MyPlugin
 {
@@ -84,6 +86,18 @@ namespace MyPlugin
                     TreeParentField = nameof(PolicyNode.ParentId),
                     Parent = "collections")]
         public List<PolicyNode> Policy { get; set => SetField(ref field, value); } = new List<PolicyNode>();
+
+        // ---- VRage value types -------------------------------------------
+
+        [ColorOption(ColorFormat.Rgb, "HUD accent", Parent = "server-right")]
+        public Color HudColor { get; set => SetField(ref field, value); } = Color.Cyan;
+
+        [Vector3DOption("World offset", Parent = "limits")]
+        public Vector3D WorldOffset { get; set => SetField(ref field, value); } = Vector3D.Zero;
+
+        [PositionAndOrientationOption("Default spawn pose", Parent = "limits")]
+        public MyPositionAndOrientation SpawnPose { get; set => SetField(ref field, value); }
+            = new MyPositionAndOrientation(Vector3D.Zero, Vector3.Forward, Vector3.Up);
     }
 }
 ```

@@ -5,6 +5,10 @@
         <IsPackable>false</IsPackable>
         <Nullable>disable</Nullable>
         <LangVersion>latest</LangVersion>
+        <Platforms>x64</Platforms>
+        <PlatformTarget>x64</PlatformTarget>
+        <!-- VRage.Math is built for .NET Framework; consume it from net10.0 anyway. -->
+        <NoWarn>NU1701</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
@@ -15,6 +19,14 @@
 
     <ItemGroup>
         <ProjectReference Include="..\PluginSdk\PluginSdk.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- Tests instantiate VRage.Math types directly, so the dlls must be present at
+             runtime. Private="True" copies them into the test output. -->
+        <Reference Include="VRage.Math" HintPath="$(DS64)\VRage.Math.dll" Private="True" />
+        <Reference Include="VRage" HintPath="$(DS64)\VRage.dll" Private="True" />
+        <Reference Include="VRage.Library" HintPath="$(DS64)\VRage.Library.dll" Private="True" />
     </ItemGroup>
 
 </Project>

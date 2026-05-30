@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using PluginSdk.Config;
 using PluginSdk.Tools;
+using VRage;
+using VRageMath;
 
 namespace PluginSdk.Tests
 {
@@ -164,5 +166,32 @@ namespace PluginSdk.Tests
             Numbers = new List<int>(),
             Map = new SerializableDictionary<string, double>(),
         };
+
+        // Built-in VRage value types
+
+        [ColorOption(ColorFormat.Rgb, "A solid color (RGB picker)")]
+        public Color SolidColor { get; set => SetField(ref field, value); } = new Color((byte)10, (byte)20, (byte)30, (byte)255);
+
+        [ColorOption(ColorFormat.Rgba, "A color with alpha (RGBA picker)")]
+        public Color TintColor { get; set => SetField(ref field, value); } = new Color((byte)40, (byte)50, (byte)60, (byte)128);
+
+        [Vector2DOption("2D vector (double)")]
+        public Vector2D UvOffset { get; set => SetField(ref field, value); } = new Vector2D(0.25, 0.75);
+
+        [Vector3DOption("3D vector (double)")]
+        public Vector3D WorldOffset { get; set => SetField(ref field, value); } = new Vector3D(1.5, 2.5, 3.5);
+
+        [Vector2IOption("2D vector (int)")]
+        public Vector2I TileCoord { get; set => SetField(ref field, value); } = new Vector2I(3, 4);
+
+        [Vector3IOption("3D vector (int)")]
+        public Vector3I GridSize { get; set => SetField(ref field, value); } = new Vector3I(1, 2, 3);
+
+        [DirectionOption("A face direction")]
+        public Base6Directions.Direction Facing { get; set => SetField(ref field, value); } = Base6Directions.Direction.Up;
+
+        [PositionAndOrientationOption("Spawn pose")]
+        public MyPositionAndOrientation SpawnPose { get; set => SetField(ref field, value); }
+            = new MyPositionAndOrientation(new Vector3D(10, 20, 30), Vector3.Forward, Vector3.Up);
     }
 }

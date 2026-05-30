@@ -195,6 +195,65 @@ Key properties:
 - Enums work as struct members too — the struct's `[StructMember]` is enough,
   and the schema describes the member as `type = "enum"` with the enum's name.
 
+## Built-in VRage value types
+
+The SDK has first-class support for a small set of VRage value types that
+plugins routinely persist. Each attribute marks one property type and only
+records UI metadata — the on-disk and on-wire formats are fixed.
+
+| Attribute | Property type | XML format | JSON format |
+|---|---|---|---|
+| `[ColorOption(ColorFormat.Rgb)]` | `Color` | `#RRGGBB` written, `#RRGGBB`/`#RRGGBBAA` both accepted | `"#RRGGBBAA"` |
+| `[ColorOption(ColorFormat.Rgba)]` | `Color` | `#RRGGBBAA` | `"#RRGGBBAA"` |
+| `[Vector2DOption]` | `Vector2D` | `"x y"` (G17 doubles) | `{ "x": …, "y": … }` |
+| `[Vector3DOption]` | `Vector3D` | `"x y z"` (G17 doubles) | `{ "x": …, "y": …, "z": … }` |
+| `[Vector2IOption]` | `Vector2I` | `"x y"` (ints) | `{ "x": …, "y": … }` |
+| `[Vector3IOption]` | `Vector3I` | `"x y z"` (ints) | `{ "x": …, "y": …, "z": … }` |
+| `[DirectionOption]` | `Base6Directions.Direction` | member name (`Forward`, `Up`, …) | string member name |
+| `[PositionAndOrientationOption]` | `MyPositionAndOrientation` | nested `<Position>` / `<Forward>` / `<Up>` | `{ position, forward, up }` |
+
+Notes:
+
+- **Color storage is always RGBA** — `ColorFormat` only selects whether the UI
+  exposes the alpha slider. `Rgb` writes the shorter `#RRGGBB` form on disk
+  (alpha forced to 255 on load) and emits `hasAlpha: false` in the schema;
+  `Rgba` writes the full `#RRGGBBAA` form and emits `hasAlpha: true`.
+- **`Direction` is stored by member name**, not its underlying byte value, so
+  the VRage enum staying in its current order is not a load-bearing assumption.
+  The schema entry also embeds the full member list under
+  `enumName = "Direction"` so the UI does not hard-code the six values.
+- **`MyPositionAndOrientation` surfaces only `Position`, `Forward` and `Up`**.
+  The derived `Orientation` quaternion is never serialized — it would be
+  undefined for a default-constructed instance with zero direction vectors.
+
+```csharp
+using VRage;
+using VRageMath;
+
+[ColorOption(ColorFormat.Rgb,  "HUD accent color")]
+public Color HudColor { get; set => SetField(ref field, value); } = Color.Cyan;
+
+[ColorOption(ColorFormat.Rgba, "Trail tint with alpha")]
+public Color TrailColor { get; set => SetField(ref field, value); }
+    = new Color((byte)255, (byte)128, (byte)0, (byte)200);
+
+[Vector3DOption("World offset applied to all spawn points")]
+public Vector3D WorldOffset { get; set => SetField(ref field, value); } = Vector3D.Zero;
+
+[DirectionOption("Default placement direction")]
+public Base6Directions.Direction PlaceDirection { get; set => SetField(ref field, value); }
+    = Base6Directions.Direction.Forward;
+
+[PositionAndOrientationOption("Default spawn pose")]
+public MyPositionAndOrientation SpawnPose { get; set => SetField(ref field, value); }
+    = new MyPositionAndOrientation(Vector3D.Zero, Vector3.Forward, Vector3.Up);
+```
+
+These types are not allowed as struct members or list/dict element/value types —
+use them only as top-level config properties. (If a plugin needs a `List<Color>`
+or a struct with a `Vector3D` field, raise it; the current scope intentionally
+keeps the type matrix small.)
+
 ## Choosing list vs. dict vs. struct
 
 - **Same shape, ordered, identity is positional** → `List<scalar>` or

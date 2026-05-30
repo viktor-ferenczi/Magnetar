@@ -176,6 +176,40 @@ namespace PluginSdk.Config
                     }
                     break;
 
+                case ColorOptionAttribute co:
+                    info.Type = "color";
+                    info.HasAlpha = co.Format == ColorFormat.Rgba;
+                    break;
+
+                case Vector2DOptionAttribute _:
+                    info.Type = "vec2d";
+                    break;
+
+                case Vector3DOptionAttribute _:
+                    info.Type = "vec3d";
+                    break;
+
+                case Vector2IOptionAttribute _:
+                    info.Type = "vec2i";
+                    break;
+
+                case Vector3IOptionAttribute _:
+                    info.Type = "vec3i";
+                    break;
+
+                case DirectionOptionAttribute _:
+                    info.Type = "direction";
+                    // Direction values travel as the enum member name; surface the
+                    // member list so the UI can render the dropdown without
+                    // hard-coding it.
+                    info.EnumName = nameof(VRageMath.Base6Directions.Direction);
+                    RegisterEnum(schema, typeof(VRageMath.Base6Directions.Direction));
+                    break;
+
+                case PositionAndOrientationOptionAttribute _:
+                    info.Type = "pose";
+                    break;
+
                 default:
                     info.Type = "unknown";
                     break;
@@ -474,6 +508,13 @@ namespace PluginSdk.Config
 
         // Enum (references a definition in ConfigSchemaData.Enums)
         public string EnumName { get; set; }
+
+        /// <summary>
+        /// Set on <c>color</c> options. <c>true</c> = the UI exposes an alpha
+        /// slider (RGBA editor); <c>false</c> = the UI hides alpha (RGB editor)
+        /// — the stored value is still RGBA, but alpha stays fixed at 255.
+        /// </summary>
+        public bool? HasAlpha { get; set; }
     }
 
     /// <summary>

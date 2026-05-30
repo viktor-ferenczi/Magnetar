@@ -61,6 +61,7 @@ The complete allowed type catalogue:
 | Enums | Any user-defined `enum`. Stored by member name in both XML and JSON. |
 | Collections | `List<T>` of any scalar, enum, or user struct; `SerializableDictionary<TKey, TValue>` with `TKey` ∈ {string, int, long} and a scalar `TValue` |
 | Compound | A user-defined `struct` whose public fields and properties are scalars, enums, supported collections, or other supported structs |
+| VRage values | `Color` (RGBA), `Vector2D`, `Vector3D`, `Vector2I`, `Vector3I`, `Base6Directions.Direction`, `MyPositionAndOrientation` — see [Options.md](Options.md#built-in-vrage-value-types) |
 
 Plain `Dictionary<,>` is **not** supported — `System.Xml.Serialization` cannot
 round-trip it. Use `PluginSdk.Tools.SerializableDictionary<TKey, TValue>`,
