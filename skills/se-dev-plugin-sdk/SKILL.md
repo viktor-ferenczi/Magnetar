@@ -1,10 +1,10 @@
 ---
 name: se-dev-plugin-sdk
-description: Handbook for plugin developers using Magnetar's PluginSdk to declare configuration variables and the UI layout that Quasar renders remotely.
+description: Handbook for plugin developers using Magnetar's PluginSdk to declare configuration variables, the UI layout Quasar renders remotely, and to log through one environment-agnostic Logger.
 license: MIT
 ---
 
-# Magnetar PluginSdk — Configuration Handbook
+# Magnetar PluginSdk — Developer Handbook
 
 > **C# 14 syntax.** All examples in this handbook use the C# 14 `field`
 > contextual keyword in property accessors (no explicit private backing
@@ -26,6 +26,10 @@ You only write a `PluginConfig`-derived class with attribute-decorated
 properties. Everything else (validation hints, UI tree, change notifications,
 storage) is derived from those attributes by reflection.
 
+The library also gives a plugin a single **`Logger`** that writes to the game
+log when running standalone and to structured JSON when managed by Quasar —
+the plugin logs the same way in both. See [Logging.md](Logging.md).
+
 ## When to read what
 
 | Document | When you need it |
@@ -36,6 +40,7 @@ storage) is derived from those attributes by reflection.
 | [Mutation.md](Mutation.md) | **Must read.** The in-place mutation pitfall that silently breaks remote sync. |
 | [Storage.md](Storage.md) | Loading and saving — XML on disk, JSON over the wire. |
 | [Example.md](Example.md) | Complete annotated config class to copy-paste from. |
+| [Logging.md](Logging.md) | Logging through one environment-agnostic `Logger` — game log when standalone, JSON when managed by Quasar. |
 
 ## Minimal example
 
