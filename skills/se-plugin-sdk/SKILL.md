@@ -1,0 +1,62 @@
+---
+name: se-plugin-sdk
+description: Handbook for plugin developers using Magnetar's PluginSdk to declare configuration variables and the UI layout that Quasar renders remotely.
+license: MIT
+---
+
+# Magnetar PluginSdk — Configuration Handbook
+
+`PluginSdk` is the small .NET Standard 2.0 library a Magnetar plugin uses to
+declare its configuration. The same declaration drives three things at once:
+
+1. **Local XML config** — sparse, on-disk, only non-default values.
+2. **Remote JSON envelope** — schema + defaults + current values, consumed by
+   the Quasar control plane.
+3. **Web UI layout** — Quasar renders the editor from the schema; the plugin
+   never ships any UI code.
+
+You only write a `PluginConfig`-derived class with attribute-decorated
+properties. Everything else (validation hints, UI tree, change notifications,
+storage) is derived from those attributes by reflection.
+
+## When to read what
+
+| Document | When you need it |
+|---|---|
+| [Config.md](Config.md) | Writing the config class itself — base class contract, property pattern, change notification. |
+| [Options.md](Options.md) | Picking the right attribute for a value (bool, ranges, strings, lists, dicts, structs). |
+| [Layout.md](Layout.md) | Grouping options into tabs, sections and columns for the Web UI. |
+| [Mutation.md](Mutation.md) | **Must read.** The in-place mutation pitfall that silently breaks remote sync. |
+| [Storage.md](Storage.md) | Loading and saving — XML on disk, JSON over the wire. |
+| [Example.md](Example.md) | Complete annotated config class to copy-paste from. |
+
+## Minimal example
+
+```csharp
+using PluginSdk.Config;
+
+public class MyPluginConfig : PluginConfig
+{
+    private bool enabled = true;
+    private int tickRate = 60;
+
+    [BoolOption("Enable the feature")]
+    public bool Enabled { get => enabled; set => SetField(ref enabled, value); }
+
+    [IntOption(1, 240, "Ticks per second")]
+    public int TickRate { get => tickRate; set => SetField(ref tickRate, value); }
+}
+```
+
+That is enough for Quasar to render a usable editor with a checkbox and a
+bounded integer field, and for `ConfigStorage` to round-trip the values.
+
+## What PluginSdk does *not* do
+
+- It does not load, save, or watch files on its own — the plugin host calls
+  `ConfigStorage.SaveXml` / `LoadXml` at appropriate moments.
+- It does not push changes to Quasar — the host transports the JSON envelope.
+- It does not render UI. The schema is metadata; the UI lives elsewhere.
+- It does not expose a fluent builder or runtime registration API.
+  Configuration is declared statically with attributes; reflection at
+  `ConfigSchema.Build(typeof(MyPluginConfig))` produces the schema.
