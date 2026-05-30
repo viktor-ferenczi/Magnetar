@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using PluginSdk.Config;
@@ -87,8 +88,8 @@ namespace PluginSdk.Tests
 
             Assert.True(schema.Structs.ContainsKey(nameof(TestStruct)));
             var members = schema.Structs[nameof(TestStruct)];
-            // 5 fields + 1 property
-            Assert.Equal(6, members.Count);
+            // 6 fields + 1 property
+            Assert.Equal(7, members.Count);
             Assert.Contains(members, m => m.Name == "Flag" && m.Type == "bool");
             Assert.Contains(members, m => m.Name == "Text" && m.Type == "string");
         }
@@ -150,12 +151,69 @@ namespace PluginSdk.Tests
             Assert.True(schema.Structs.ContainsKey(nameof(NestedStruct)));
             Assert.True(schema.Structs.ContainsKey(nameof(TestStruct)));
         }
+
+        [Fact]
+        public void Build_EnumProperty_RegistersEnumAndReferencesIt()
+        {
+            var schema = ConfigSchema.Build(typeof(TestConfig));
+
+            var quality = schema.Properties.Single(p => p.Name == "Quality");
+            Assert.Equal("enum", quality.Type);
+            Assert.Equal(nameof(Quality), quality.EnumName);
+            Assert.Equal("scalars-right", quality.Parent);
+
+            Assert.True(schema.Enums.ContainsKey(nameof(Quality)));
+        }
+
+        [Fact]
+        public void Build_EnumDefinition_ListsMembersInNaturalOrderWithCaptionOverrides()
+        {
+            var schema = ConfigSchema.Build(typeof(TestConfig));
+            var values = schema.Enums[nameof(Quality)];
+
+            Assert.Equal(3, values.Count);
+            // Natural (underlying-value) order: Low=0, Medium=5, High=10.
+            Assert.Equal("Low", values[0].Name);
+            Assert.Equal("Low quality", values[0].Caption);
+            Assert.Equal("Medium", values[1].Name);
+            Assert.Equal("Medium quality", values[1].Caption);
+            // High has no [EnumCaption] -> caption falls back to member name.
+            Assert.Equal("High", values[2].Name);
+            Assert.Equal("High", values[2].Caption);
+        }
+
+        [Fact]
+        public void Build_ListOfEnum_CapturesElementEnumName()
+        {
+            var schema = ConfigSchema.Build(typeof(TestConfig));
+
+            var qualityList = schema.Properties.Single(p => p.Name == "QualityList");
+            Assert.Equal("list", qualityList.Type);
+            Assert.Equal("enum", qualityList.ElementType);
+            Assert.Equal(nameof(Quality), qualityList.ElementEnum);
+            Assert.True(schema.Enums.ContainsKey(nameof(Quality)));
+        }
+
+        [Fact]
+        public void Build_EnumStructMember_DescribedAsEnumWithName()
+        {
+            var schema = ConfigSchema.Build(typeof(TestConfig));
+            var members = schema.Structs[nameof(TestStruct)];
+
+            var quality = members.Single(m => m.Name == "Quality");
+            Assert.Equal("enum", quality.Type);
+            Assert.Equal(nameof(Quality), quality.EnumName);
+            // Reaching TestStruct from the schema walk must also register
+            // the enum referenced from inside the struct.
+            Assert.True(schema.Enums.ContainsKey(nameof(Quality)));
+        }
     }
 
     /// <summary>
     /// Tests that verify the JSON envelope produced by
     /// <see cref="ConfigStorage.SaveJson"/>: shape, presence of all options
-    /// (defaults too), and a single round-trip via the wire format.
+    /// (defaults too), a single round-trip via the wire format, and
+    /// enum-by-member-name encoding.
     /// </summary>
     public class JsonEnvelopeTests
     {
@@ -184,11 +242,34 @@ namespace PluginSdk.Tests
                 "boolList", "intList", "longList", "floatList", "doubleList", "stringList",
                 "dictStringInt", "dictStringString", "dictStringDouble",
                 "dictIntString", "dictIntDouble", "dictLongBool", "dictLongLong",
+                "quality", "qualityList",
                 "structValue", "structList", "treeNodes", "nested",
             })
             {
                 Assert.True(values.TryGetProperty(name, out _), $"values is missing '{name}'");
             }
+        }
+
+        [Fact]
+        public void SaveJson_EnumValuesAreSerialisedByMemberName()
+        {
+            // Enum values must persist as member names, not underlying ints,
+            // so renumbering an enum cannot silently change stored values.
+            var c = new TestConfig
+            {
+                Quality = Quality.High,
+                QualityList = new List<Quality> { Quality.Low, Quality.Medium },
+            };
+            var json = ConfigStorage.SaveJson(c);
+            using var doc = JsonDocument.Parse(json);
+            var values = doc.RootElement.GetProperty("values");
+
+            Assert.Equal("High", values.GetProperty("quality").GetString());
+
+            var listEl = values.GetProperty("qualityList");
+            Assert.Equal(2, listEl.GetArrayLength());
+            Assert.Equal("Low", listEl[0].GetString());
+            Assert.Equal("Medium", listEl[1].GetString());
         }
 
         [Fact]

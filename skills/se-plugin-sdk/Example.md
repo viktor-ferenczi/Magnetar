@@ -25,6 +25,16 @@ namespace MyPlugin
         [StructMember] public string Label { get; set; }
     }
 
+    // ---- Enum used by an option -----------------------------------------
+
+    public enum LogLevel
+    {
+        [EnumCaption("Debug (verbose)")] Debug,
+        Info,                                            // caption = "Info"
+        [EnumCaption("Warning")]         Warn,
+        [EnumCaption("Error")]           Error,
+    }
+
     // ---- The config class -----------------------------------------------
 
     [Tab("general",  caption: "General")]
@@ -37,10 +47,11 @@ namespace MyPlugin
     public class MyPluginConfig : PluginConfig
     {
         // Scalars
-        private bool   enabled    = true;
-        private string serverName = "Unnamed";
-        private int    tickRate   = 60;
-        private double gravity    = 1.0;
+        private bool     enabled    = true;
+        private string   serverName = "Unnamed";
+        private int      tickRate   = 60;
+        private double   gravity    = 1.0;
+        private LogLevel logLevel   = LogLevel.Info;
 
         // Compound
         private Range allowedPorts = new Range { Min = 27000, Max = 27100 };
@@ -81,6 +92,15 @@ namespace MyPlugin
         {
             get => gravity;
             set => SetField(ref gravity, value);
+        }
+
+        // ---- Enum property -----------------------------------------------
+
+        [EnumOption("Log verbosity", Parent = "server-right")]
+        public LogLevel LogLevel
+        {
+            get => logLevel;
+            set => SetField(ref logLevel, value);
         }
 
         // ---- Struct property ---------------------------------------------
@@ -124,7 +144,9 @@ namespace MyPlugin
 
 - Two tabs: **General** and **Advanced**.
 - Inside **General**: a **Server** section split into **Left** and **Right**
-  columns; and a **Limits** section with the port-range struct editor.
+  columns (Right also holds a `LogLevel` drop-down whose entries are the
+  `[EnumCaption]` captions); and a **Limits** section with the port-range
+  struct editor.
 - Inside **Advanced**: a **Collections** section with a list-of-strings
   editor, a key/value editor for `Quotas`, and a tree editor for `Policy`.
 - Each field shows its description as help text. Numeric and string

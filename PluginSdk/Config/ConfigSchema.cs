@@ -39,7 +39,7 @@ namespace PluginSdk.Config
 
             foreach (var prop in PluginConfig.GetConfigProperties(configType))
             {
-                var info = BuildPropertyInfo(prop, pendingStructs);
+                var info = BuildPropertyInfo(prop, pendingStructs, schema);
                 if (info != null) schema.Properties.Add(info);
             }
 
@@ -47,13 +47,13 @@ namespace PluginSdk.Config
             {
                 var structType = pendingStructs.Dequeue();
                 if (schema.Structs.ContainsKey(structType.Name)) continue;
-                schema.Structs[structType.Name] = BuildStructMembers(structType, pendingStructs);
+                schema.Structs[structType.Name] = BuildStructMembers(structType, pendingStructs, schema);
             }
 
             return schema;
         }
 
-        private static ConfigPropertyInfo BuildPropertyInfo(PropertyInfo prop, Queue<Type> pendingStructs)
+        private static ConfigPropertyInfo BuildPropertyInfo(PropertyInfo prop, Queue<Type> pendingStructs, ConfigSchemaData schema)
         {
             var option = prop.GetCustomAttribute<ConfigOptionAttribute>();
             if (option == null) return null;
@@ -114,6 +114,11 @@ namespace PluginSdk.Config
                         info.ElementStruct = elementType.Name;
                         pendingStructs.Enqueue(elementType);
                     }
+                    else if (info.ElementType == "enum")
+                    {
+                        info.ElementEnum = elementType.Name;
+                        RegisterEnum(schema, elementType);
+                    }
                     break;
 
                 case DictOptionAttribute dictOpt:
@@ -127,6 +132,11 @@ namespace PluginSdk.Config
                     {
                         info.ValueStruct = dictArgs.Value.Name;
                         pendingStructs.Enqueue(dictArgs.Value);
+                    }
+                    else if (info.ValueType == "enum")
+                    {
+                        info.ValueEnum = dictArgs.Value.Name;
+                        RegisterEnum(schema, dictArgs.Value);
                     }
                     break;
 
@@ -148,6 +158,24 @@ namespace PluginSdk.Config
                     }
                     break;
 
+                case EnumOptionAttribute _:
+                    if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(List<>))
+                    {
+                        // [EnumOption] on a List<TEnum>
+                        var elt = t.GetGenericArguments()[0];
+                        info.Type = "list";
+                        info.ElementType = "enum";
+                        info.ElementEnum = elt.Name;
+                        RegisterEnum(schema, elt);
+                    }
+                    else
+                    {
+                        info.Type = "enum";
+                        info.EnumName = t.Name;
+                        RegisterEnum(schema, t);
+                    }
+                    break;
+
                 default:
                     info.Type = "unknown";
                     break;
@@ -156,7 +184,7 @@ namespace PluginSdk.Config
             return info;
         }
 
-        private static List<StructMemberInfo> BuildStructMembers(Type structType, Queue<Type> pendingStructs)
+        private static List<StructMemberInfo> BuildStructMembers(Type structType, Queue<Type> pendingStructs, ConfigSchemaData schema)
         {
             var members = new List<StructMemberInfo>();
 
@@ -166,7 +194,8 @@ namespace PluginSdk.Config
                     field.Name,
                     field.FieldType,
                     field.GetCustomAttribute<StructMemberAttribute>()?.Description,
-                    pendingStructs));
+                    pendingStructs,
+                    schema));
             }
 
             foreach (var prop in structType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
@@ -176,24 +205,26 @@ namespace PluginSdk.Config
                     prop.Name,
                     prop.PropertyType,
                     prop.GetCustomAttribute<StructMemberAttribute>()?.Description,
-                    pendingStructs));
+                    pendingStructs,
+                    schema));
             }
 
             return members;
         }
 
         /// <summary>
-        /// Describes one struct member. Recognises scalars, <c>List&lt;T&gt;</c>,
-        /// <c>Dictionary&lt;K,V&gt;</c> and nested structs — the same shapes
-        /// the top-level option attributes cover. Anything else collapses to
-        /// <c>"unknown"</c>.
+        /// Describes one struct member. Recognises scalars, enums,
+        /// <c>List&lt;T&gt;</c>, <c>Dictionary&lt;K,V&gt;</c> and nested
+        /// structs — the same shapes the top-level option attributes cover.
+        /// Anything else collapses to <c>"unknown"</c>.
         /// </summary>
-        private static StructMemberInfo DescribeStructMember(string name, Type type, string description, Queue<Type> pendingStructs)
+        private static StructMemberInfo DescribeStructMember(string name, Type type, string description, Queue<Type> pendingStructs, ConfigSchemaData schema)
         {
             var info = new StructMemberInfo { Name = name, Description = description };
             var typeName = TypeName(type);
 
-            if (typeName != "struct" && typeName != "unknown")
+            // Scalars (everything that isn't a collection, struct or enum).
+            if (typeName != "struct" && typeName != "unknown" && typeName != "enum")
             {
                 info.Type = typeName;
                 return info;
@@ -209,6 +240,11 @@ namespace PluginSdk.Config
                     info.ElementStruct = elt.Name;
                     pendingStructs.Enqueue(elt);
                 }
+                else if (info.ElementType == "enum")
+                {
+                    info.ElementEnum = elt.Name;
+                    RegisterEnum(schema, elt);
+                }
                 return info;
             }
 
@@ -223,6 +259,19 @@ namespace PluginSdk.Config
                     info.ValueStruct = dictArgs.Value.Value.Name;
                     pendingStructs.Enqueue(dictArgs.Value.Value);
                 }
+                else if (info.ValueType == "enum")
+                {
+                    info.ValueEnum = dictArgs.Value.Value.Name;
+                    RegisterEnum(schema, dictArgs.Value.Value);
+                }
+                return info;
+            }
+
+            if (typeName == "enum")
+            {
+                info.Type = "enum";
+                info.EnumName = type.Name;
+                RegisterEnum(schema, type);
                 return info;
             }
 
@@ -246,8 +295,32 @@ namespace PluginSdk.Config
             if (t == typeof(float)) return "float";
             if (t == typeof(double)) return "double";
             if (t == typeof(string)) return "string";
+            if (t.IsEnum) return "enum";
             if (t.IsValueType && !t.IsPrimitive && !t.IsEnum) return "struct";
             return "unknown";
+        }
+
+        /// <summary>
+        /// Records <paramref name="enumType"/> in <paramref name="schema"/>'s
+        /// enum table (idempotent). Members are listed in the enum's natural
+        /// (underlying-value) order; each carries its member name — the value
+        /// used in storage and on the wire — and a UI caption that defaults
+        /// to the member name unless overridden with
+        /// <see cref="EnumCaptionAttribute"/>.
+        /// </summary>
+        private static void RegisterEnum(ConfigSchemaData schema, Type enumType)
+        {
+            if (schema.Enums.ContainsKey(enumType.Name)) return;
+
+            var values = new List<EnumValueInfo>();
+            foreach (var name in Enum.GetNames(enumType))
+            {
+                var caption = enumType.GetField(name)
+                    ?.GetCustomAttribute<EnumCaptionAttribute>()?.Caption ?? name;
+                values.Add(new EnumValueInfo { Name = name, Caption = caption });
+            }
+
+            schema.Enums[enumType.Name] = values;
         }
 
         private static Type GetGenericArgument(Type t, Type expectedGenericDefinition, int index)
@@ -286,6 +359,25 @@ namespace PluginSdk.Config
         public List<LayoutContainerInfo> Layout { get; set; } = new List<LayoutContainerInfo>();
         public List<ConfigPropertyInfo> Properties { get; set; } = new List<ConfigPropertyInfo>();
         public Dictionary<string, List<StructMemberInfo>> Structs { get; set; } = new Dictionary<string, List<StructMemberInfo>>();
+
+        /// <summary>
+        /// Enum definitions referenced by options or struct members, keyed by
+        /// enum type name. Each entry lists the members in the enum's natural
+        /// (underlying-value) order.
+        /// </summary>
+        public Dictionary<string, List<EnumValueInfo>> Enums { get; set; } = new Dictionary<string, List<EnumValueInfo>>();
+    }
+
+    /// <summary>
+    /// One member of an enum used as a configuration value. <see cref="Name"/>
+    /// is the member identifier — the value used in XML/JSON storage — and
+    /// <see cref="Caption"/> is the UI caption (defaults to <see cref="Name"/>,
+    /// overridden per member with <see cref="EnumCaptionAttribute"/>).
+    /// </summary>
+    public sealed class EnumValueInfo
+    {
+        public string Name { get; set; }
+        public string Caption { get; set; }
     }
 
     /// <summary>One node of the layout tree.</summary>
@@ -321,13 +413,18 @@ namespace PluginSdk.Config
         public int? MaxCount { get; set; }
         public string ElementType { get; set; }
         public string ElementStruct { get; set; }
+        public string ElementEnum { get; set; }
         public string KeyType { get; set; }
         public string ValueType { get; set; }
         public string ValueStruct { get; set; }
+        public string ValueEnum { get; set; }
         public string TreeParentField { get; set; }
 
         // Struct
         public string StructName { get; set; }
+
+        // Enum (references a definition in ConfigSchemaData.Enums)
+        public string EnumName { get; set; }
     }
 
     /// <summary>
@@ -342,12 +439,15 @@ namespace PluginSdk.Config
         public string Type { get; set; }
         public string Description { get; set; }
 
-        // For list / dict / struct members
+        // For list / dict / struct / enum members
         public string ElementType { get; set; }
         public string ElementStruct { get; set; }
+        public string ElementEnum { get; set; }
         public string KeyType { get; set; }
         public string ValueType { get; set; }
         public string ValueStruct { get; set; }
+        public string ValueEnum { get; set; }
         public string StructName { get; set; }
+        public string EnumName { get; set; }
     }
 }

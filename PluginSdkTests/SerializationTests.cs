@@ -8,9 +8,9 @@ namespace PluginSdk.Tests
 {
     /// <summary>
     /// XML and JSON round-trip tests covering every type combination
-    /// supported by <see cref="PluginConfig"/>: scalars, lists of scalars,
-    /// dictionaries with each allowed key type, structs, and lists of
-    /// structs.
+    /// supported by <see cref="PluginConfig"/>: scalars, enums, lists of
+    /// scalars and enums, dictionaries with each allowed key type, structs
+    /// (including with enum members), and lists of structs.
     /// </summary>
     public class SerializationTests
     {
@@ -65,6 +65,9 @@ namespace PluginSdk.Tests
                     [100L] = 200L,
                 },
 
+                Quality = Quality.High,
+                QualityList = new List<Quality> { Quality.Low, Quality.High, Quality.Medium },
+
                 StructValue = new TestStruct
                 {
                     Flag = true,
@@ -73,6 +76,7 @@ namespace PluginSdk.Tests
                     FloatNumber = 0.5f,
                     DoubleNumber = 1.5,
                     Text = "nested",
+                    Quality = Quality.Medium,
                 },
 
                 StructList = new List<TestStruct>
@@ -122,12 +126,16 @@ namespace PluginSdk.Tests
             Assert.Equal(expected.DictLongBool, actual.DictLongBool);
             Assert.Equal(expected.DictLongLong, actual.DictLongLong);
 
+            Assert.Equal(expected.Quality, actual.Quality);
+            Assert.Equal(expected.QualityList, actual.QualityList);
+
             Assert.Equal(expected.StructValue.Flag, actual.StructValue.Flag);
             Assert.Equal(expected.StructValue.Integer, actual.StructValue.Integer);
             Assert.Equal(expected.StructValue.LongInteger, actual.StructValue.LongInteger);
             Assert.Equal(expected.StructValue.FloatNumber, actual.StructValue.FloatNumber);
             Assert.Equal(expected.StructValue.DoubleNumber, actual.StructValue.DoubleNumber);
             Assert.Equal(expected.StructValue.Text, actual.StructValue.Text);
+            Assert.Equal(expected.StructValue.Quality, actual.StructValue.Quality);
 
             Assert.Equal(expected.StructList.Count, actual.StructList.Count);
             for (int i = 0; i < expected.StructList.Count; i++)
@@ -216,6 +224,26 @@ namespace PluginSdk.Tests
             var json = ConfigStorage.SaveJson(original);
             var loaded = ConfigStorage.LoadJson<TestConfig>(json);
             AssertEqual(original, loaded);
+        }
+
+        [Fact]
+        public void Xml_EnumValueIsStoredByMemberName()
+        {
+            // Quality.High has underlying value 10; storing it by name protects
+            // against silent breakage if the enum is later renumbered.
+            var c = new TestConfig { Quality = Quality.High };
+            var path = Path.Combine(Path.GetTempPath(), $"magnetar-enum-{System.Guid.NewGuid():N}.xml");
+            try
+            {
+                ConfigStorage.SaveXml(c, path);
+                var text = File.ReadAllText(path);
+                Assert.Contains("<Quality>High</Quality>", text);
+                Assert.DoesNotContain("<Quality>10</Quality>", text);
+            }
+            finally
+            {
+                if (File.Exists(path)) File.Delete(path);
+            }
         }
     }
 }

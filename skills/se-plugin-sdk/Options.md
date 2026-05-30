@@ -38,8 +38,8 @@ public string Slug { ... }
 
 ## Lists
 
-`[ListOption(maxCount, description)]` marks a `List<T>` where `T` is a scalar
-or a user struct. `maxCount = 0` (the default) means unlimited.
+`[ListOption(maxCount, description)]` marks a `List<T>` where `T` is a scalar,
+an enum, or a user struct. `maxCount = 0` (the default) means unlimited.
 
 ```csharp
 [ListOption(description: "Whitelisted ports")]
@@ -115,7 +115,7 @@ a list of structs) and is convenient for clarity.
   the schema. Members without it are ignored.
 - Property members must be both readable and writable (`{ get; set; }`).
 - Member types follow the same catalogue as top-level options: scalars,
-  `List<T>`, `SerializableDictionary<,>`, or nested structs.
+  enums, `List<T>`, `SerializableDictionary<,>`, or nested structs.
 - A struct may be a `List<T>` element, but **not** a dictionary key.
 
 ### Constraints inside structs
@@ -124,6 +124,42 @@ There is intentionally no `IntStructMember(min, max)` or similar. Struct
 members carry only a description. If you need range-validated values, put the
 field on the config class directly with the appropriate option attribute
 instead of nesting it in a struct.
+
+## Enum options
+
+`[EnumOption(description)]` marks either a single enum value or a
+`List<TEnum>`. Inside a struct, an enum field needs only the usual
+`[StructMember]` — `[EnumOption]` is a top-level option attribute.
+
+```csharp
+public enum Quality
+{
+    [EnumCaption("Low quality")]    Low,
+    [EnumCaption("Medium quality")] Medium,
+    High,                                          // caption falls back to "High"
+}
+
+[EnumOption("Render quality", Parent = "scalars-right")]
+public Quality Quality { get => quality; set => SetField(ref quality, value); }
+
+[EnumOption("Preset rotation")]
+public List<Quality> Presets { get => presets; set => SetField(ref presets, value); }
+```
+
+Key properties:
+
+- **Storage is by member name** in both XML and JSON. Renumbering an enum
+  cannot silently change stored values; reordering members is also safe.
+- **Schema lists members in natural (underlying-value) order**, each with its
+  identifier and a UI caption. The caption defaults to the member name and is
+  overridden per member with `[EnumCaption("…")]` (same naming convention as
+  the `Caption` property on layout containers).
+- A `List<TEnum>` can be declared with either `[EnumOption]` or `[ListOption]`
+  — both produce the same schema (`type = "list"`, `elementType = "enum"`,
+  `elementEnum = "<TEnum>"`). `[EnumOption]` is preferred for clarity, mirroring
+  how `[StructOption]` is preferred over `[ListOption]` for a list of structs.
+- Enums work as struct members too — the struct's `[StructMember]` is enough,
+  and the schema describes the member as `type = "enum"` with the enum's name.
 
 ## Choosing list vs. dict vs. struct
 

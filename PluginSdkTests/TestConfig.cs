@@ -5,9 +5,21 @@ using PluginSdk.Tools;
 namespace PluginSdk.Tests
 {
     /// <summary>
+    /// Enum used as a configuration value. The first two members override their
+    /// UI caption; <see cref="High"/> falls back to its member name.
+    /// Underlying values are non-contiguous to prove storage is by name.
+    /// </summary>
+    public enum Quality
+    {
+        [EnumCaption("Low quality")] Low = 0,
+        [EnumCaption("Medium quality")] Medium = 5,
+        High = 10,
+    }
+
+    /// <summary>
     /// Struct value used by <see cref="TestConfig.Point"/> and
     /// <see cref="TestConfig.Points"/>. Exercises every scalar type that may
-    /// appear as a struct member.
+    /// appear as a struct member, plus an enum member.
     /// </summary>
     public struct TestStruct
     {
@@ -17,6 +29,7 @@ namespace PluginSdk.Tests
         [StructMember] public float FloatNumber;
         [StructMember] public double DoubleNumber;
         [StructMember] public string Text { get; set; }
+        [StructMember] public Quality Quality;
     }
 
     /// <summary>
@@ -81,6 +94,10 @@ namespace PluginSdk.Tests
         private SerializableDictionary<int, double> dictIntDouble = new SerializableDictionary<int, double>();
         private SerializableDictionary<long, bool> dictLongBool = new SerializableDictionary<long, bool>();
         private SerializableDictionary<long, long> dictLongLong = new SerializableDictionary<long, long>();
+
+        // Enum scalar and list of enums
+        private Quality quality = Quality.Medium;
+        private List<Quality> qualityList = new List<Quality>();
 
         // Struct directly, and list of struct
         private TestStruct structValue;
@@ -152,6 +169,12 @@ namespace PluginSdk.Tests
 
         [DictOption(description: "long -> long")]
         public SerializableDictionary<long, long> DictLongLong { get => dictLongLong; set => SetField(ref dictLongLong, value); }
+
+        [EnumOption("An enum value", Parent = "scalars-right")]
+        public Quality Quality { get => quality; set => SetField(ref quality, value); }
+
+        [EnumOption("List of enums")]
+        public List<Quality> QualityList { get => qualityList; set => SetField(ref qualityList, value); }
 
         [StructOption(description: "A struct value")]
         public TestStruct StructValue { get => structValue; set => SetField(ref structValue, value); }

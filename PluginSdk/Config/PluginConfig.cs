@@ -26,8 +26,12 @@ namespace PluginSdk.Config
     /// <list type="bullet">
     ///   <item><description><c>bool</c>, <c>int</c>, <c>long</c>, <c>float</c>,
     ///         <c>double</c>, <c>string</c></description></item>
+    ///   <item><description>A user-defined <c>enum</c>. Stored by member name
+    ///         (never its integer value) in both XML and JSON. Annotate the
+    ///         property with <see cref="EnumOptionAttribute"/>; override member
+    ///         captions with <see cref="EnumCaptionAttribute"/>.</description></item>
     ///   <item><description><c>List&lt;T&gt;</c> where <c>T</c> is one of the
-    ///         scalar types above, or a user-defined <i>Struct</i>.</description></item>
+    ///         scalar types above, an enum, or a user-defined <i>Struct</i>.</description></item>
     ///   <item><description><see cref="SerializableDictionary{TKey,TValue}"/>
     ///         where <c>TKey</c> is <c>string</c>, <c>int</c> or <c>long</c>,
     ///         and <c>TValue</c> is one of the scalar types above.</description></item>

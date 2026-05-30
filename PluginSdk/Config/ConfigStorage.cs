@@ -19,7 +19,7 @@ namespace PluginSdk.Config
     /// three-part envelope:</para>
     /// <code>
     /// {
-    ///   "schema":   { layout, properties, structs },
+    ///   "schema":   { layout, properties, structs, enums },
     ///   "defaults": { ... all options at default values ... },
     ///   "values":   { ... all options at current values  ... }
     /// }
@@ -39,6 +39,9 @@ namespace PluginSdk.Config
             IncludeFields = true,
             WriteIndented = true,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            // Persist enum config values by member name, never as integers, so
+            // renumbering an enum does not silently change stored values.
+            Converters = { new JsonStringEnumConverter() },
         };
 
         // -------- XML ---------------------------------------------------

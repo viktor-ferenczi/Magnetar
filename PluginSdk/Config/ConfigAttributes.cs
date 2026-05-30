@@ -186,14 +186,19 @@ namespace PluginSdk.Config
 
     /// <summary>
     /// Marks a <c>List&lt;T&gt;</c> configuration option. The element type
-    /// <c>T</c> must be one of the supported scalar types or a Struct.
-    /// <paramref name="maxCount"/> of <c>0</c> means unlimited.
+    /// <c>T</c> must be one of the supported scalar types, an enum, or a
+    /// Struct. <paramref name="maxCount"/> of <c>0</c> means unlimited.
     ///
     /// <para>
     /// When the element type is a Struct, set
     /// <see cref="TreeParentField"/> to the name of a struct member that
     /// points to the id of its parent element — the UI will then render the
     /// list as a tree instead of a flat list.
+    /// </para>
+    /// <para>
+    /// A <c>List&lt;TEnum&gt;</c> may also be declared with
+    /// <see cref="EnumOptionAttribute"/>; both produce the same schema, with
+    /// <c>EnumOption</c> preferred for clarity.
     /// </para>
     /// </summary>
     public sealed class ListOptionAttribute : ConfigOptionAttribute
@@ -254,6 +259,25 @@ namespace PluginSdk.Config
     }
 
     /// <summary>
+    /// Marks a configuration option whose type is a user-defined <c>enum</c>,
+    /// or a <c>List&lt;TEnum&gt;</c> of such an enum.
+    ///
+    /// <para>
+    /// The value is always stored — in both XML and JSON — as the enum
+    /// member's name, never its underlying integer value, so renumbering the
+    /// enum does not break existing configs. The schema sent to the UI lists
+    /// every member name in the enum's natural (underlying-value) order, along
+    /// with a parallel caption for each member. Captions default to the
+    /// member name and can be overridden per member with
+    /// <see cref="EnumCaptionAttribute"/>.
+    /// </para>
+    /// </summary>
+    public sealed class EnumOptionAttribute : ConfigOptionAttribute
+    {
+        public EnumOptionAttribute(string description = null) : base(description) { }
+    }
+
+    /// <summary>
     /// Marks a public field or property inside a Struct that is used as a
     /// configuration value. Carries a description for the UI; constraint
     /// validation for struct members is intentionally simple and
@@ -267,6 +291,26 @@ namespace PluginSdk.Config
         public StructMemberAttribute(string description = null)
         {
             Description = description;
+        }
+    }
+
+    /// <summary>
+    /// Overrides the UI caption shown for one member of an enum used as a
+    /// configuration value. Applied to the enum field itself (e.g.
+    /// <c>[EnumCaption("Low quality")] Low</c>). The member's identifier — not
+    /// its caption — remains the value persisted to XML and JSON; this
+    /// attribute is metadata only and never affects storage. The naming
+    /// mirrors the <c>Caption</c> property on layout containers
+    /// (<see cref="LayoutContainerAttribute"/>).
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
+    public sealed class EnumCaptionAttribute : Attribute
+    {
+        public string Caption { get; }
+
+        public EnumCaptionAttribute(string caption)
+        {
+            Caption = caption;
         }
     }
 }

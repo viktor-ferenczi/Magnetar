@@ -24,6 +24,9 @@ Properties of the XML format:
   does not break older XML files.
 - **Missing file → defaults.** `LoadXml` with a non-existent path returns
   `new T()` rather than throwing.
+- **Enums are written by member name** (e.g. `<Quality>High</Quality>`), not
+  by their underlying integer value, so renumbering an enum in a later
+  version cannot silently change stored values.
 
 ## JSON — Quasar wire format
 
@@ -36,21 +39,24 @@ The JSON document is a three-part envelope:
 
 ```json
 {
-  "schema":   { "layout": [...], "properties": [...], "structs": { ... } },
+  "schema":   { "layout": [...], "properties": [...], "structs": { ... }, "enums": { ... } },
   "defaults": { /* every option at its default value */ },
   "values":   { /* every option at its current value */ }
 }
 ```
 
-- **`schema`** — the layout tree, per-option metadata, and struct member
-  tables produced by `ConfigSchema.Build(typeof(MyConfig))`. Rebuilt on every
-  save; the plugin never writes it by hand.
+- **`schema`** — the layout tree, per-option metadata, struct member tables
+  and enum value tables produced by `ConfigSchema.Build(typeof(MyConfig))`.
+  Rebuilt on every save; the plugin never writes it by hand.
 - **`defaults`** — a full serialization of `new MyConfig()`, so a Quasar
   client can offer "reset to default" without round-tripping to the server.
 - **`values`** — a full serialization of the current `config`. **Every option
   is present**, including those at their default. This is the opposite of the
   XML format and is deliberate: Quasar needs a complete picture to render
   every editor.
+- **Enums are emitted as their member name string** (e.g. `"quality": "High"`),
+  matching the XML format and the names listed in the `schema.enums`
+  table.
 
 `LoadJson` reads only the `values` section. A flat values-only document is
 also accepted as a backward-compatibility fallback.
