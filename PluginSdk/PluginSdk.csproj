@@ -18,6 +18,9 @@
              Reference it via HintPath (Private="False") so the dll is not redistributed. -->
         <Reference Include="VRage.Math" HintPath="$(DS64)\VRage.Math.dll" Private="False" />
         <Reference Include="VRage" HintPath="$(DS64)\VRage.dll" Private="False" />
+        <!-- VRage.Game provides MyPromoteLevel (permission levels) and MyFontEnum
+             (chat font/color constants) used by the chat-command API. -->
+        <Reference Include="VRage.Game" HintPath="$(DS64)\VRage.Game.dll" Private="False" />
     </ItemGroup>
 
 </Project>

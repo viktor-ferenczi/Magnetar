@@ -1,6 +1,6 @@
 ---
 name: se-dev-plugin-sdk
-description: Handbook for plugin developers using Magnetar's PluginSdk to declare configuration variables, the UI layout Quasar renders remotely, and to log through one environment-agnostic Logger.
+description: Handbook for plugin developers using Magnetar's PluginSdk to declare configuration variables, the UI layout Quasar renders remotely, server-side chat commands, and to log through one environment-agnostic Logger.
 license: MIT
 ---
 
@@ -26,6 +26,10 @@ You only write a `PluginConfig`-derived class with attribute-decorated
 properties. Everything else (validation hints, UI tree, change notifications,
 storage) is derived from those attributes by reflection.
 
+The library also lets a plugin declare **server-side chat commands**
+(`!prefix cmd args`) with attribute-decorated methods — no parsing or
+dispatch boilerplate. See [Commands.md](Commands.md).
+
 The library also gives a plugin a single **`Logger`** that writes to the game
 log when running standalone and to structured JSON when managed by Quasar —
 the plugin logs the same way in both. See [Logging.md](Logging.md).
@@ -40,6 +44,7 @@ the plugin logs the same way in both. See [Logging.md](Logging.md).
 | [Mutation.md](Mutation.md) | **Must read.** The in-place mutation pitfall that silently breaks remote sync. |
 | [Storage.md](Storage.md) | Loading and saving — XML on disk, JSON over the wire. |
 | [Example.md](Example.md) | Complete annotated config class to copy-paste from. |
+| [Commands.md](Commands.md) | Adding server chat commands (`!prefix cmd`) with `[CommandRoot]` / `[Command]` modules. |
 | [Logging.md](Logging.md) | Logging through one environment-agnostic `Logger` — game log when standalone, JSON when managed by Quasar. |
 
 ## Minimal example

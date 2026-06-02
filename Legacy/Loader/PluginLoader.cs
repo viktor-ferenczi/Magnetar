@@ -5,6 +5,8 @@ using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using HarmonyLib;
+using PluginSdk.Commands;
+using Pulsar.Legacy.Commands;
 using Pulsar.Shared;
 using Pulsar.Shared.Config;
 using Pulsar.Shared.Data;
@@ -21,6 +23,14 @@ public class PluginLoader : IHandleInputPlugin
     private bool init;
     private readonly List<PluginInstance> plugins = [];
     public List<PluginInstance> Plugins => plugins;
+
+    /// <summary>
+    /// Chat-command pipeline, built once when plugins are initialized and
+    /// installed as the host's <see cref="ServerCommands.Registrar"/>. Plugins
+    /// register their command modules through the <see cref="ServerCommands"/>
+    /// facade. Null until plugins are initialized.
+    /// </summary>
+    public CommandService Commands { get; private set; }
 
     public PluginLoader()
     {
@@ -76,6 +86,12 @@ public class PluginLoader : IHandleInputPlugin
 
             if (Flags.CheckAllPlugins)
                 debugCompileResults.Append("Plugins that failed to Init:").AppendLine();
+
+            // Install the host's command registrar before plugins initialize.
+            // Ownership is taken from each plugin's assembly, so plugins may
+            // register from Init() or at any later point.
+            Commands = new CommandService();
+            ServerCommands.Registrar = Commands;
 
             for (int i = plugins.Count - 1; i >= 0; i--)
             {
@@ -142,6 +158,9 @@ public class PluginLoader : IHandleInputPlugin
         foreach (PluginInstance p in plugins)
             p.Dispose();
         plugins.Clear();
+
+        ServerCommands.Registrar = null;
+        Commands = null;
 
         LogFile.Dispose();
         Instance = null;

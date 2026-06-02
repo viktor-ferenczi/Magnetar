@@ -1,0 +1,26 @@
+using System;
+using System.Reflection;
+
+namespace PluginSdk.Commands
+{
+    /// <summary>
+    /// Host-provided sink that registers a plugin's command modules. A plugin
+    /// does not implement or hold this directly; it calls the static
+    /// <see cref="ServerCommands"/> facade, which the host backs with a single
+    /// long-lived instance. Ownership is attributed to the assembly the plugin
+    /// passes in, so registration may happen at any time, not only during
+    /// <c>Init()</c>.
+    /// </summary>
+    public interface ICommandRegistrar
+    {
+        /// <summary>Registers every <see cref="CommandModule"/> in
+        /// <paramref name="assembly"/> that carries a
+        /// <see cref="CommandRootAttribute"/>, owned by that assembly.</summary>
+        void Register(Assembly assembly);
+
+        /// <summary>Registers the given <see cref="CommandModule"/> types
+        /// explicitly (skipping the assembly scan), owned by
+        /// <paramref name="assembly"/>.</summary>
+        void Register(Assembly assembly, params Type[] moduleTypes);
+    }
+}
