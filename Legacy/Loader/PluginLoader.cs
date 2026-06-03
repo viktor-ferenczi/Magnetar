@@ -5,6 +5,9 @@ using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using HarmonyLib;
+using PluginSdk.Commands;
+using Pulsar.Legacy.Commands;
+using Pulsar.Legacy.Paths;
 using Pulsar.Shared;
 using Pulsar.Shared.Config;
 using Pulsar.Shared.Data;
@@ -21,6 +24,14 @@ public class PluginLoader : IHandleInputPlugin
     private bool init;
     private readonly List<PluginInstance> plugins = [];
     public List<PluginInstance> Plugins => plugins;
+
+    /// <summary>
+    /// Chat-command pipeline, built once when plugins are initialized and
+    /// installed as the host's <see cref="ServerCommands.Registrar"/>. Plugins
+    /// register their command modules through the <see cref="ServerCommands"/>
+    /// facade. Null until plugins are initialized.
+    /// </summary>
+    public CommandService Commands { get; private set; }
 
     public PluginLoader()
     {
@@ -76,6 +87,27 @@ public class PluginLoader : IHandleInputPlugin
 
             if (Flags.CheckAllPlugins)
                 debugCompileResults.Append("Plugins that failed to Init:").AppendLine();
+
+            // Install the host's command registrar before plugins initialize.
+            // Ownership is taken from each plugin's assembly, so plugins may
+            // register from Init() or at any later point.
+            Commands = new CommandService();
+            ServerCommands.Registrar = Commands;
+
+            // Register Magnetar's built-in !save / !restart / !quit before
+            // plugins initialize. Last-registration-wins, so a plugin may
+            // override any of them by registering the same prefix later.
+            Commands.Register(typeof(SaveCommand).Assembly,
+                typeof(SaveCommand), typeof(RestartCommand), typeof(QuitCommand));
+
+            // Bind the SDK PathResolver facade to the LinuxCompat case-insensitive
+            // path cache before plugins initialize, so a plugin may already use it
+            // from its own Init(); otherwise the pass-through shim stays active
+            // (Windows). Binding is reflection-only (GetType / GetMethod /
+            // CreateDelegate) and never invokes a static member, so it triggers no
+            // type initializers — the LinuxCompat cache cctor runs lazily on the
+            // first actual resolve call, not here.
+            PathResolverBinder.Bind();
 
             for (int i = plugins.Count - 1; i >= 0; i--)
             {
@@ -142,6 +174,9 @@ public class PluginLoader : IHandleInputPlugin
         foreach (PluginInstance p in plugins)
             p.Dispose();
         plugins.Clear();
+
+        ServerCommands.Registrar = null;
+        Commands = null;
 
         LogFile.Dispose();
         Instance = null;

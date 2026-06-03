@@ -1,6 +1,6 @@
 ---
 name: se-dev-plugin-sdk
-description: Handbook for plugin developers using Magnetar's PluginSdk to declare configuration variables, the UI layout Quasar renders remotely, and to log through one environment-agnostic Logger.
+description: Handbook for plugin developers using Magnetar's PluginSdk to declare configuration variables, the UI layout Quasar renders remotely, server-side chat commands, case-insensitive path resolution that works on both Windows and Linux, and to log through one environment-agnostic Logger.
 license: MIT
 ---
 
@@ -26,21 +26,30 @@ You only write a `PluginConfig`-derived class with attribute-decorated
 properties. Everything else (validation hints, UI tree, change notifications,
 storage) is derived from those attributes by reflection.
 
+The library also lets a plugin declare **server-side chat commands**
+(`!prefix cmd args`) with attribute-decorated methods — no parsing or
+dispatch boilerplate. See [Commands.md](Commands.md).
+
 The library also gives a plugin a single **`Logger`** that writes to the game
 log when running standalone and to structured JSON when managed by Quasar —
 the plugin logs the same way in both. See [Logging.md](Logging.md).
+
+The library also exposes a **`PathResolver`** facade so file-handling code
+resolves paths case-insensitively on Linux and stays a cheap no-op on Windows —
+the plugin writes one code path that works on both. See [Paths.md](Paths.md).
 
 ## When to read what
 
 | Document | When you need it |
 |---|---|
-| [Config.md](Config.md) | Writing the config class itself — base class contract, property pattern, change notification. |
+| [Config.md](Config.md) | Writing the config class itself — base class contract, property pattern, change notification (incl. the list/dict/struct in-place mutation pitfall). |
 | [Options.md](Options.md) | Picking the right attribute for a value (bool, ranges, strings, lists, dicts, structs). |
 | [Layout.md](Layout.md) | Grouping options into tabs, sections and columns for the Web UI. |
-| [Mutation.md](Mutation.md) | **Must read.** The in-place mutation pitfall that silently breaks remote sync. |
 | [Storage.md](Storage.md) | Loading and saving — XML on disk, JSON over the wire. |
 | [Example.md](Example.md) | Complete annotated config class to copy-paste from. |
+| [Commands.md](Commands.md) | Adding server chat commands (`!prefix cmd`) with `[CommandRoot]` / `[Command]` modules. |
 | [Logging.md](Logging.md) | Logging through one environment-agnostic `Logger` — game log when standalone, JSON when managed by Quasar. |
+| [Paths.md](Paths.md) | Resolving filesystem paths case-insensitively via `PathResolver` so file handling works on both Windows and Linux. |
 
 ## Minimal example
 
