@@ -112,13 +112,19 @@
     + the native .so dependencies staged by ./build.sh) next to the executable for
     both `dotnet build` and `dotnet publish`. Uses `cp -a` to preserve any soname
     symlinks. Windows uses deploy.bat (above) instead.
+
+    The '$(TargetFramework)' != '' guard is essential: this is a multi-targeting
+    project, so a plain `dotnet build` (no -f) runs an outer cross-targeting build
+    where $(OutDir) is empty. Without the guard, `cp -a build/Libraries/. $(OutDir).`
+    becomes `cp -a build/Libraries/. .` and litters the project directory itself.
+    The guard restricts the copy to the per-TFM inner builds that have a real OutDir.
   -->
-  <Target Name="CopyLibrariesAfterBuild" AfterTargets="Build" Condition="'$(OS)' != 'Windows_NT'">
+  <Target Name="CopyLibrariesAfterBuild" AfterTargets="Build" Condition="'$(OS)' != 'Windows_NT' and '$(TargetFramework)' != ''">
     <Error Condition="!Exists('$(MSBuildThisFileDirectory)../build/Libraries')"
            Text="$(MSBuildThisFileDirectory)../build/Libraries is missing. Run ./build.sh from the repo root before building." />
     <Exec Command="cp -a &quot;$(MSBuildThisFileDirectory)../build/Libraries/.&quot; &quot;$(OutDir).&quot;" />
   </Target>
-  <Target Name="CopyLibrariesAfterPublish" AfterTargets="Publish" Condition="'$(OS)' != 'Windows_NT'">
+  <Target Name="CopyLibrariesAfterPublish" AfterTargets="Publish" Condition="'$(OS)' != 'Windows_NT' and '$(TargetFramework)' != ''">
     <Error Condition="!Exists('$(MSBuildThisFileDirectory)../build/Libraries')"
            Text="$(MSBuildThisFileDirectory)../build/Libraries is missing. Run ./build.sh from the repo root before publishing." />
     <Exec Command="cp -a &quot;$(MSBuildThisFileDirectory)../build/Libraries/.&quot; &quot;$(PublishDir).&quot;" />
