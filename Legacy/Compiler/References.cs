@@ -12,6 +12,7 @@ internal static class References
         "Newtonsoft.Json",
         "Mono.Cecil",
         "NLog",
+        "PluginSdk",
     ];
 
     private static readonly string[] includeGlobs =
