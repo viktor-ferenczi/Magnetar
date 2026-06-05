@@ -101,16 +101,35 @@ object so a bad payload can never take down logging.
 | `data` | The serialized payload — **omitted when absent**. |
 | `exception` | `Exception.ToString()` — **omitted when absent**. |
 
-> **Transport is a placeholder.** Until the Quasar Agent integration lands,
-> `QuasarLogSink` writes JSON lines to **standard output** (which the agent
-> captures from the managed process). The constructor accepts an
-> `Action<string>` line writer, so the real transport drops in later without
-> touching any call site:
->
-> ```csharp
-> var sink = new QuasarLogSink(line => agentChannel.Send(line));
-> var log  = new Logger("MyPlugin", sink);
-> ```
+### How the line reaches Quasar
+
+`QuasarLogSink.Write` does two things with each JSON line:
+
+1. **Writes it to standard output**, which lands in the managed server's
+   on-disk log file (the durable, human-readable record).
+2. **Raises `LogEnvironment.LineEmitted`** with the same line. The in-process
+   Quasar Agent (loaded as a plugin in the same server) subscribes to this
+   event, buffers lines in a bounded queue, and ships them to Quasar over its
+   WebSocket channel, where they feed the live **"Recent plugin logs"** panel.
+
+The network path is the one the panel relies on, because it is resilient to
+Quasar restarting and **reconnecting to a detached server daemon** — a case
+where Quasar no longer owns the process's stdout and so cannot capture it.
+While Quasar is unreachable the agent keeps buffering (oldest dropped first);
+on reconnect the backlog flushes, so the panel is backfilled rather than
+losing everything captured during the outage.
+
+The constructor still accepts an `Action<string>` line writer, so the stdout
+target can be overridden in tests or for custom redirection:
+
+```csharp
+var sink = new QuasarLogSink(line => myWriter.WriteLine(line));
+var log  = new Logger("MyPlugin", sink);
+```
+
+> The `LineEmitted` relay is process-wide and Quasar-specific: it fires only
+> from `QuasarLogSink` (i.e. only when managed by Quasar). Plugins never
+> subscribe to it — it exists for the agent. Keep logging through `Logger`.
 
 ## Environment selection
 
@@ -126,9 +145,8 @@ Selection is driven by the `QUASAR_AGENT` environment variable
 managed server it sets it, and any non-empty value switches logging to the
 JSON sink. Otherwise the standalone sink is used.
 
-> The variable name is the current detection hook and may change when the
-> Quasar Agent integration is finalized. Plugins should **not** read it
-> directly — call `Logger.Create` and let the SDK decide.
+> The variable name is the detection hook the Quasar Agent sets. Plugins should
+> **not** read it directly — call `Logger.Create` and let the SDK decide.
 
 ## Custom and explicit sinks
 
@@ -166,6 +184,6 @@ for the entry itself.
 - It does **not** filter by level — every entry reaches the sink. Add level
   gating in a custom sink if you need it.
 - It does **not** buffer, batch, or flush. The Magnetar sink follows `MyLog`'s
-  own flushing; the Quasar sink writes a line per entry.
-- It does **not** transport anything to Quasar yet — see the placeholder note
-  above.
+  own flushing; the Quasar sink writes a line per entry (the agent does the
+  buffering/batching for network delivery — see [How the line reaches
+  Quasar](#how-the-line-reaches-quasar)).

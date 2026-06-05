@@ -29,6 +29,27 @@ namespace PluginSdk.Logging
             => !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(QuasarEnvironmentVariable));
 
         /// <summary>
+        /// Process-wide tap on the structured Quasar log stream. The in-process
+        /// Quasar agent subscribes to this so it can ship plugin log lines to
+        /// Quasar over its network channel, which survives Quasar restarts and
+        /// agent reconnects to detached server daemons — unlike standard-output
+        /// capture, which only works for a child process Quasar itself started.
+        /// Each argument is one formatted JSON line, identical to what
+        /// <see cref="QuasarLogSink"/> writes to standard output.
+        /// </summary>
+        public static event Action<string> LineEmitted;
+
+        /// <summary>
+        /// Raises <see cref="LineEmitted"/>. A faulting subscriber must never
+        /// disrupt the plugin's logging call, so exceptions are swallowed.
+        /// </summary>
+        internal static void RaiseLineEmitted(string line)
+        {
+            // Handler errors must fail explicitly, since there would be no way to log such an exception
+            LineEmitted?.Invoke(line);
+        }
+
+        /// <summary>
         /// Creates the sink appropriate for the current environment:
         /// <see cref="QuasarLogSink"/> when managed by Quasar, otherwise
         /// <see cref="MagnetarLogSink"/>.

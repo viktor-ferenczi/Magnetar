@@ -666,7 +666,7 @@
   {
     "module": "PluginSdk.Logging",
     "project": "PluginSdk",
-    "purpose": "Provides a unified, environment-agnostic logging API for Magnetar plugins. Plugins obtain a `Logger` (stamped with their name) via `Logger.Create` and call severity methods without knowing how or where messages are stored. The correct sink \u2014 `MagnetarLogSink` (forwarding to the SE DS `MyLog.Default`) or `QuasarLogSink` (emitting one-line JSON to stdout for the Quasar Agent) \u2014 is resolved automatically from the `QUASAR_AGENT` environment variable at startup.",
+    "purpose": "Provides a unified, environment-agnostic logging API for Magnetar plugins. Plugins obtain a `Logger` (stamped with their name) via `Logger.Create` and call severity methods without knowing how or where messages are stored. The correct sink \u2014 `MagnetarLogSink` (forwarding to the SE DS `MyLog.Default`) or `QuasarLogSink` (emitting one-line JSON to stdout and raising `LogEnvironment.LineEmitted` for the in-process Quasar Agent to ship over its network channel) \u2014 is resolved automatically from the `QUASAR_AGENT` environment variable at startup.",
     "role": "Sits between plugin code and the two deployment back-ends (standalone Magnetar and Quasar-managed). It is the only layer plugin authors directly reference; all environment detection and rendering is encapsulated here so plugins need zero conditional logging code.",
     "key_types": [
       {
@@ -685,7 +685,7 @@
         "name": "LogEnvironment",
         "kind": "static class",
         "file": "PluginSdk/Logging/LogEnvironment.cs",
-        "summary": "Probes the QUASAR_AGENT environment variable and returns the appropriate ILogSink via CreateDefaultSink."
+        "summary": "Probes the QUASAR_AGENT environment variable and returns the appropriate ILogSink via CreateDefaultSink; also hosts the LineEmitted relay the Quasar Agent uses to ship logs over the network."
       },
       {
         "name": "LogJson",
@@ -715,7 +715,7 @@
         "name": "QuasarLogSink",
         "kind": "class",
         "file": "PluginSdk/Logging/QuasarLogSink.cs",
-        "summary": "Serializes each entry as a compact single-line JSON object and writes it to stdout (captured by the Quasar Agent)."
+        "summary": "Serializes each entry as a compact single-line JSON object, writes it to stdout (on-disk log) and raises LogEnvironment.LineEmitted for the agent's network relay."
       }
     ],
     "public_api": [
@@ -725,6 +725,7 @@
       "ILogSink.Write(in LogEntry) \u2014 sink contract called by Logger",
       "LogEnvironment.CreateDefaultSink() \u2014 selects and constructs the appropriate ILogSink",
       "LogEnvironment.IsManagedByQuasar() \u2014 checks QUASAR_AGENT env var",
+      "LogEnvironment.LineEmitted \u2014 process-wide event of formatted JSON lines, raised by QuasarLogSink for the agent relay",
       "MagnetarLogSink.Format(in LogEntry) \u2014 formats a line for MyLog (public for reuse)",
       "QuasarLogSink.Format(in LogEntry) \u2014 formats a JSON line (public for testing)"
     ],

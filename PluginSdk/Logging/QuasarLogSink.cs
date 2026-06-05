@@ -39,7 +39,20 @@ namespace PluginSdk.Logging
         /// </summary>
         public QuasarLogSink() : this(line => Console.Out.WriteLine(line)) { }
 
-        public void Write(in LogEntry entry) => writeLine(Format(in entry));
+        public void Write(in LogEntry entry)
+        {
+            var line = Format(in entry);
+
+            // Durable, human-readable path: the line lands in the managed
+            // server's standard output (captured to the on-disk log file).
+            writeLine(line);
+
+            // Live path: hand the same line to the in-process Quasar agent,
+            // which queues it and ships it to Quasar over the network. Unlike
+            // stdout capture, this keeps the "Recent plugin logs" panel fed
+            // after Quasar restarts and reconnects to a detached server daemon.
+            LogEnvironment.RaiseLineEmitted(line);
+        }
 
         /// <summary>
         /// Formats <paramref name="entry"/> as a compact, single-line JSON

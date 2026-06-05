@@ -107,12 +107,12 @@ Every documented source file, grouped by module. 123 files across 16 modules.
 | ---- | ----- | ---- | ----------- |
 | [`PluginSdk/Logging/ILogSink.cs`](descriptions/PluginSdk/Logging/ILogSink.cs.md) | 19 | 3 | Defines the single-method contract that every log destination must satisfy. |
 | [`PluginSdk/Logging/LogEntry.cs`](descriptions/PluginSdk/Logging/LogEntry.cs.md) | 48 | 2 | A single immutable log record that is passed by `in` reference from `Logger` to `ILogSink`. |
-| [`PluginSdk/Logging/LogEnvironment.cs`](descriptions/PluginSdk/Logging/LogEnvironment.cs.md) | 39 | 2 | Acts as the environment probe that decides which `ILogSink` the SDK uses. |
+| [`PluginSdk/Logging/LogEnvironment.cs`](descriptions/PluginSdk/Logging/LogEnvironment.cs.md) | 70 | 2 | Acts as the environment probe that decides which `ILogSink` the SDK uses; also hosts the `LineEmitted` agent relay. |
 | [`PluginSdk/Logging/LogJson.cs`](descriptions/PluginSdk/Logging/LogJson.cs.md) | 51 | 2 | Centralises `System.Text.Json` configuration and serialization helpers so both `MagnetarLogSink` and `QuasarLogSink` produce identical JSON shapes for the optional structured `data` payload. |
 | [`PluginSdk/Logging/LogLevel.cs`](descriptions/PluginSdk/Logging/LogLevel.cs.md) | 16 | 3 | Declares the severity levels used throughout the SDK logging subsystem. |
 | [`PluginSdk/Logging/Logger.cs`](descriptions/PluginSdk/Logging/Logger.cs.md) | 84 | 2 | The primary logging facade a plugin holds as a `static readonly` field. |
 | [`PluginSdk/Logging/MagnetarLogSink.cs`](descriptions/PluginSdk/Logging/MagnetarLogSink.cs.md) | 58 | 2 | The `ILogSink` used when the server runs under standalone Magnetar (no Quasar Agent). |
-| [`PluginSdk/Logging/QuasarLogSink.cs`](descriptions/PluginSdk/Logging/QuasarLogSink.cs.md) | 76 | 2 | The `ILogSink` used when the server process is managed by the Quasar Agent. |
+| [`PluginSdk/Logging/QuasarLogSink.cs`](descriptions/PluginSdk/Logging/QuasarLogSink.cs.md) | 89 | 2 | The `ILogSink` used when the server process is managed by the Quasar Agent; writes JSON to stdout and raises `LogEnvironment.LineEmitted` for the agent's network relay. |
 
 ## PluginSdk.Runtime  ·  [module doc](modules/PluginSdk.Runtime.md)
 
