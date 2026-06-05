@@ -1,0 +1,986 @@
+{
+  "uses": {
+    "Compiler/PublicizedAssemblies.cs": [
+      "Compiler/Publicizer.cs"
+    ],
+    "Compiler/Publicizer.cs": [
+      "Compiler/RoslynReferences.cs"
+    ],
+    "Compiler/RoslynCompiler.cs": [
+      "Compiler/PublicizedAssemblies.cs",
+      "Compiler/RoslynReferences.cs"
+    ],
+    "Legacy/Commands/CommandService.cs": [
+      "Legacy/Commands/ServerCommandResponder.cs",
+      "PluginSdk/Commands/CommandCaller.cs",
+      "PluginSdk/Commands/CommandDispatcher.cs",
+      "PluginSdk/Commands/CommandRegistrationException.cs",
+      "PluginSdk/Commands/CommandRegistry.cs",
+      "PluginSdk/Commands/ICommandRegistrar.cs"
+    ],
+    "Legacy/Commands/MagnetarCommands.cs": [
+      "PluginSdk/Commands/CommandModule.cs",
+      "PluginSdk/Commands/CommandRoot.cs"
+    ],
+    "Legacy/Commands/ServerCommandResponder.cs": [
+      "PluginSdk/Commands/CommandCaller.cs",
+      "PluginSdk/Commands/CommandReply.cs",
+      "PluginSdk/Commands/ICommandResponder.cs"
+    ],
+    "Legacy/Compiler/Interim.cs": [
+      "Compiler/RoslynCompiler.cs",
+      "Compiler/RoslynReferences.cs",
+      "Legacy/Compiler/Legacy.cs",
+      "Legacy/Compiler/References.cs",
+      "Shared/Flags.cs"
+    ],
+    "Legacy/Compiler/Legacy.cs": [
+      "Compiler/RoslynCompiler.cs",
+      "Compiler/RoslynReferences.cs",
+      "Legacy/Compiler/Interim.cs",
+      "Legacy/Compiler/References.cs"
+    ],
+    "Legacy/Compiler/References.cs": [
+      "Shared/Tools.cs"
+    ],
+    "Legacy/Extensions/ModPlugin.cs": [
+      "Legacy/Launcher/Folder.cs",
+      "Shared/Data/ModPlugin.cs",
+      "Shared/Steam.cs"
+    ],
+    "Legacy/Launcher/Folder.cs": [
+      "Shared/Steam.cs",
+      "Shared/Tools.cs"
+    ],
+    "Legacy/Launcher/Game.cs": [
+      "Shared/Flags.cs",
+      "Shared/LogFile.cs"
+    ],
+    "Legacy/Launcher/ServerControl.cs": [
+      "Legacy/Launcher/Game.cs",
+      "Legacy/Loader/PluginLoader.cs"
+    ],
+    "Legacy/Loader/PluginInstance.cs": [
+      "PluginSdk/Logging/LogLevel.cs",
+      "Shared/Data/PluginData.cs",
+      "Shared/Data/PluginStatus.cs",
+      "Shared/Tools.cs"
+    ],
+    "Legacy/Loader/PluginLoader.cs": [
+      "Legacy/Commands/CommandService.cs",
+      "Legacy/Commands/MagnetarCommands.cs",
+      "Legacy/Loader/PluginInstance.cs",
+      "Legacy/Loader/SteamMods.cs",
+      "Legacy/Paths/PathResolverBinder.cs",
+      "PluginSdk/Commands/ServerCommands.cs",
+      "Shared/Config/ConfigManager.cs",
+      "Shared/Data/Profile.cs",
+      "Shared/Flags.cs",
+      "Shared/PluginList.cs"
+    ],
+    "Legacy/Loader/SteamMods.cs": [
+      "Shared/Steam.cs"
+    ],
+    "Legacy/Patch/Patch_Compile.cs": [
+      "Shared/Steam.cs"
+    ],
+    "Legacy/Patch/Patch_ComponentRegistered.cs": [
+      "Legacy/Loader/PluginLoader.cs"
+    ],
+    "Legacy/Patch/Patch_LoadScripts.cs": [
+      "Legacy/Loader/PluginLoader.cs"
+    ],
+    "Legacy/Patch/Patch_MyDefinitionErrors.cs": [
+      "Legacy/Patch/Patch_Compile.cs",
+      "Shared/Tools.cs"
+    ],
+    "Legacy/Patch/Patch_MyDefinitionManager.cs": [
+      "Shared/Config/ConfigManager.cs",
+      "Shared/Data/ModPlugin.cs",
+      "Shared/Data/Profile.cs",
+      "Shared/PluginList.cs"
+    ],
+    "Legacy/Patch/Patch_MyScriptManager.cs": [
+      "Legacy/Patch/Patch_MyDefinitionErrors.cs",
+      "Shared/Config/ConfigManager.cs",
+      "Shared/Data/ModPlugin.cs",
+      "Shared/Data/Profile.cs",
+      "Shared/PluginList.cs"
+    ],
+    "Legacy/Patch/Patch_MySessionLoader.cs": [
+      "Legacy/Loader/SteamMods.cs",
+      "Shared/Flags.cs"
+    ],
+    "Legacy/Patch/Patch_ServerChat.cs": [
+      "Legacy/Commands/CommandService.cs",
+      "Legacy/Loader/PluginLoader.cs"
+    ],
+    "Legacy/Paths/PathResolverBinder.cs": [
+      "Legacy/Paths/ReflectionPathResolver.cs",
+      "PluginSdk/Paths/PathResolver.cs"
+    ],
+    "Legacy/Paths/ReflectionPathResolver.cs": [
+      "PluginSdk/Paths/IPathResolver.cs"
+    ],
+    "Legacy/Program.cs": [
+      "Legacy/Compiler/Interim.cs",
+      "Legacy/Compiler/Legacy.cs",
+      "Legacy/Launcher/Folder.cs",
+      "Legacy/Launcher/Game.cs",
+      "Legacy/Loader/NativeLibraryPreloader.cs",
+      "Legacy/Loader/PluginLoader.cs",
+      "Legacy/Patch/Patch_PrepareCrashReport.cs",
+      "Shared/AssemblyResolver.cs",
+      "Shared/Config/ConfigManager.cs",
+      "Shared/Config/CoreConfig.cs",
+      "Shared/Config/Sources/RemoteHubConfig.cs",
+      "Shared/Flags.cs",
+      "Shared/Preloader.cs",
+      "Shared/Steam.cs",
+      "Shared/Tools.cs",
+      "Shared/Updater.cs"
+    ],
+    "PluginSdk/Commands/CommandContext.cs": [
+      "PluginSdk/Commands/CommandCaller.cs",
+      "PluginSdk/Commands/CommandReply.cs",
+      "PluginSdk/Commands/ICommandResponder.cs"
+    ],
+    "PluginSdk/Commands/CommandDispatcher.cs": [
+      "PluginSdk/Commands/ArgumentBinder.cs",
+      "PluginSdk/Commands/CommandCaller.cs",
+      "PluginSdk/Commands/CommandContext.cs",
+      "PluginSdk/Commands/CommandLine.cs",
+      "PluginSdk/Commands/CommandRegistry.cs",
+      "PluginSdk/Commands/CommandReply.cs",
+      "PluginSdk/Commands/CommandRoot.cs",
+      "PluginSdk/Commands/ICommandResponder.cs",
+      "PluginSdk/Commands/RegisteredCommand.cs"
+    ],
+    "PluginSdk/Commands/CommandModule.cs": [
+      "PluginSdk/Commands/CommandContext.cs"
+    ],
+    "PluginSdk/Commands/CommandRegistry.cs": [
+      "PluginSdk/Commands/CommandAttribute.cs",
+      "PluginSdk/Commands/CommandModule.cs",
+      "PluginSdk/Commands/CommandRegistrationException.cs",
+      "PluginSdk/Commands/CommandRoot.cs",
+      "PluginSdk/Commands/CommandRootAttribute.cs",
+      "PluginSdk/Commands/PermissionAttribute.cs",
+      "PluginSdk/Commands/RegisteredCommand.cs"
+    ],
+    "PluginSdk/Commands/CommandRoot.cs": [
+      "PluginSdk/Commands/RegisteredCommand.cs"
+    ],
+    "PluginSdk/Commands/ICommandResponder.cs": [
+      "PluginSdk/Commands/CommandCaller.cs",
+      "PluginSdk/Commands/CommandReply.cs"
+    ],
+    "PluginSdk/Commands/RegisteredCommand.cs": [
+      "PluginSdk/Commands/ArgumentBinder.cs",
+      "PluginSdk/Commands/CommandContext.cs",
+      "PluginSdk/Commands/CommandModule.cs"
+    ],
+    "PluginSdk/Commands/ServerCommands.cs": [
+      "PluginSdk/Commands/ICommandRegistrar.cs"
+    ],
+    "PluginSdk/Config/ConfigSchema.cs": [
+      "PluginSdk/Config/ConfigAttributes.cs",
+      "PluginSdk/Config/PluginConfig.cs"
+    ],
+    "PluginSdk/Config/ConfigStorage.cs": [
+      "PluginSdk/Config/ConfigSchema.cs",
+      "PluginSdk/Config/PluginConfig.cs",
+      "PluginSdk/Config/TypeSerialization.cs"
+    ],
+    "PluginSdk/Config/PluginConfig.cs": [
+      "PluginSdk/Config/ConfigAttributes.cs",
+      "PluginSdk/Config/TypeSerialization.cs"
+    ],
+    "PluginSdk/Logging/ILogSink.cs": [
+      "PluginSdk/Logging/LogEntry.cs"
+    ],
+    "PluginSdk/Logging/LogEntry.cs": [
+      "PluginSdk/Logging/LogLevel.cs"
+    ],
+    "PluginSdk/Logging/LogEnvironment.cs": [
+      "PluginSdk/Logging/ILogSink.cs",
+      "PluginSdk/Logging/MagnetarLogSink.cs",
+      "PluginSdk/Logging/QuasarLogSink.cs"
+    ],
+    "PluginSdk/Logging/Logger.cs": [
+      "PluginSdk/Logging/ILogSink.cs",
+      "PluginSdk/Logging/LogEntry.cs",
+      "PluginSdk/Logging/LogEnvironment.cs",
+      "PluginSdk/Logging/LogLevel.cs"
+    ],
+    "PluginSdk/Logging/MagnetarLogSink.cs": [
+      "PluginSdk/Logging/ILogSink.cs",
+      "PluginSdk/Logging/LogEntry.cs",
+      "PluginSdk/Logging/LogJson.cs",
+      "PluginSdk/Logging/LogLevel.cs"
+    ],
+    "PluginSdk/Logging/QuasarLogSink.cs": [
+      "PluginSdk/Logging/ILogSink.cs",
+      "PluginSdk/Logging/LogEntry.cs",
+      "PluginSdk/Logging/LogJson.cs"
+    ],
+    "PluginSdk/Paths/PathResolver.cs": [
+      "PluginSdk/Paths/IPathResolver.cs",
+      "PluginSdk/Paths/ShimPathResolver.cs"
+    ],
+    "PluginSdk/Paths/ShimPathResolver.cs": [
+      "PluginSdk/Paths/IPathResolver.cs"
+    ],
+    "PluginSdkTests/ChangeNotificationTests.cs": [
+      "PluginSdk/Tools/SerializableDictionary.cs",
+      "PluginSdkTests/TestConfig.cs"
+    ],
+    "PluginSdkTests/CommandTests.cs": [
+      "PluginSdk/Commands/CommandCaller.cs",
+      "PluginSdk/Commands/CommandDispatcher.cs",
+      "PluginSdk/Commands/CommandModule.cs",
+      "PluginSdk/Commands/CommandRegistrationException.cs",
+      "PluginSdk/Commands/CommandRegistry.cs",
+      "PluginSdk/Commands/CommandReply.cs",
+      "PluginSdk/Commands/CommandRoot.cs",
+      "PluginSdk/Commands/ICommandResponder.cs"
+    ],
+    "PluginSdkTests/LoggingTests.cs": [
+      "PluginSdk/Logging/ILogSink.cs",
+      "PluginSdk/Logging/LogEntry.cs",
+      "PluginSdk/Logging/LogEnvironment.cs",
+      "PluginSdk/Logging/LogLevel.cs",
+      "PluginSdk/Logging/Logger.cs",
+      "PluginSdk/Logging/MagnetarLogSink.cs",
+      "PluginSdk/Logging/QuasarLogSink.cs"
+    ],
+    "PluginSdkTests/PathResolverTests.cs": [
+      "PluginSdk/Paths/IPathResolver.cs",
+      "PluginSdk/Paths/PathResolver.cs"
+    ],
+    "PluginSdkTests/SchemaTests.cs": [
+      "PluginSdk/Config/ConfigSchema.cs",
+      "PluginSdk/Config/ConfigStorage.cs",
+      "PluginSdk/Config/PluginConfig.cs",
+      "PluginSdkTests/TestConfig.cs"
+    ],
+    "PluginSdkTests/SerializationTests.cs": [
+      "PluginSdk/Config/ConfigSchema.cs",
+      "PluginSdk/Config/ConfigStorage.cs",
+      "PluginSdk/Tools/SerializableDictionary.cs",
+      "PluginSdkTests/TestConfig.cs"
+    ],
+    "PluginSdkTests/TestConfig.cs": [
+      "PluginSdk/Config/ConfigAttributes.cs",
+      "PluginSdk/Config/PluginConfig.cs",
+      "PluginSdk/Tools/SerializableDictionary.cs"
+    ],
+    "Shared/Config/ConfigManager.cs": [
+      "Shared/Config/CoreConfig.cs",
+      "Shared/Config/ProfilesConfig.cs",
+      "Shared/Config/Sources/RemoteHubConfig.cs",
+      "Shared/Config/SourcesConfig.cs",
+      "Shared/PluginList.cs",
+      "Shared/Stats/Model/PluginStats.cs",
+      "Shared/Stats/StatsClient.cs"
+    ],
+    "Shared/Config/GitHubPluginConfig.cs": [
+      "Shared/Config/PluginDataConfig.cs"
+    ],
+    "Shared/Config/LocalFolderConfig.cs": [
+      "Shared/Config/PluginDataConfig.cs"
+    ],
+    "Shared/Config/PluginDataConfig.cs": [
+      "Shared/Config/GitHubPluginConfig.cs",
+      "Shared/Config/LocalFolderConfig.cs"
+    ],
+    "Shared/Config/ProfilesConfig.cs": [
+      "Shared/Data/Profile.cs",
+      "Shared/Tools.cs"
+    ],
+    "Shared/Config/SourcesConfig.cs": [
+      "Shared/Config/Sources/LocalHubConfig.cs",
+      "Shared/Config/Sources/LocalPluginConfig.cs",
+      "Shared/Config/Sources/ModConfig.cs",
+      "Shared/Config/Sources/RemoteHubConfig.cs",
+      "Shared/Config/Sources/RemotePluginConfig.cs",
+      "Shared/Data/LocalPlugin.cs"
+    ],
+    "Shared/Data/GitHubPlugin.AssetFile.cs": [
+      "Shared/Data/GitHubPlugin.CacheManifest.cs",
+      "Shared/Data/GitHubPlugin.cs",
+      "Shared/Tools.cs"
+    ],
+    "Shared/Data/GitHubPlugin.CacheManifest.cs": [
+      "Shared/Config/ConfigManager.cs",
+      "Shared/Data/GitHubPlugin.AssetFile.cs",
+      "Shared/Data/GitHubPlugin.cs",
+      "Shared/Network/GitHub.cs"
+    ],
+    "Shared/Data/GitHubPlugin.cs": [
+      "Compiler/RoslynCompiler.cs",
+      "Shared/AssemblyResolver.cs",
+      "Shared/Config/ConfigManager.cs",
+      "Shared/Config/GitHubPluginConfig.cs",
+      "Shared/Config/PluginDataConfig.cs",
+      "Shared/Data/GitHubPlugin.AssetFile.cs",
+      "Shared/Data/GitHubPlugin.CacheManifest.cs",
+      "Shared/Data/PluginData.cs",
+      "Shared/Data/PluginStatus.cs",
+      "Shared/Data/Profile.cs",
+      "Shared/Network/GitHub.cs",
+      "Shared/Network/NuGetClient.cs",
+      "Shared/Network/NuGetPackage.cs",
+      "Shared/Network/NuGetPackageList.cs",
+      "Shared/PluginProgress.cs",
+      "Shared/Tools.cs"
+    ],
+    "Shared/Data/LocalFolderPlugin.cs": [
+      "Compiler/RoslynCompiler.cs",
+      "Shared/AssemblyResolver.cs",
+      "Shared/Config/ConfigManager.cs",
+      "Shared/Config/LocalFolderConfig.cs",
+      "Shared/Config/PluginDataConfig.cs",
+      "Shared/Data/GitHubPlugin.AssetFile.cs",
+      "Shared/Data/GitHubPlugin.CacheManifest.cs",
+      "Shared/Data/GitHubPlugin.cs",
+      "Shared/Data/PluginData.cs",
+      "Shared/Data/PluginStatus.cs",
+      "Shared/Data/Profile.cs",
+      "Shared/Network/NuGetClient.cs",
+      "Shared/Network/NuGetPackage.cs",
+      "Shared/Network/NuGetPackageList.cs",
+      "Shared/PluginProgress.cs",
+      "Shared/Tools.cs"
+    ],
+    "Shared/Data/LocalPlugin.cs": [
+      "Shared/AssemblyResolver.cs",
+      "Shared/Data/GitHubPlugin.AssetFile.cs",
+      "Shared/Data/GitHubPlugin.CacheManifest.cs",
+      "Shared/Data/GitHubPlugin.cs",
+      "Shared/Data/PluginData.cs",
+      "Shared/Data/PluginStatus.cs",
+      "Shared/Data/Profile.cs"
+    ],
+    "Shared/Data/ModPlugin.cs": [
+      "Shared/Config/ConfigManager.cs",
+      "Shared/Data/PluginData.cs",
+      "Shared/Data/Profile.cs"
+    ],
+    "Shared/Data/ObsoletePlugin.cs": [
+      "Compiler/RoslynCompiler.cs",
+      "Shared/Data/PluginData.cs"
+    ],
+    "Shared/Data/PluginData.cs": [
+      "Compiler/RoslynCompiler.cs",
+      "Shared/Config/ConfigManager.cs",
+      "Shared/Config/PluginDataConfig.cs",
+      "Shared/Data/GitHubPlugin.AssetFile.cs",
+      "Shared/Data/GitHubPlugin.CacheManifest.cs",
+      "Shared/Data/GitHubPlugin.cs",
+      "Shared/Data/ModPlugin.cs",
+      "Shared/Data/ObsoletePlugin.cs",
+      "Shared/Data/PluginStatus.cs",
+      "Shared/Data/Profile.cs",
+      "Shared/Flags.cs",
+      "Shared/Tools.cs"
+    ],
+    "Shared/Data/Profile.cs": [
+      "Shared/Config/GitHubPluginConfig.cs",
+      "Shared/Config/LocalFolderConfig.cs",
+      "Shared/Config/PluginDataConfig.cs",
+      "Shared/Network/GitHub.cs",
+      "Shared/Tools.cs"
+    ],
+    "Shared/Launcher.cs": [
+      "Shared/Tools.cs"
+    ],
+    "Shared/Loader.cs": [
+      "Shared/Config/ConfigManager.cs",
+      "Shared/Config/CoreConfig.cs",
+      "Shared/Config/ProfilesConfig.cs",
+      "Shared/Data/ModPlugin.cs",
+      "Shared/Data/PluginData.cs",
+      "Shared/Flags.cs",
+      "Shared/Network/GitHub.cs",
+      "Shared/PluginProgress.cs",
+      "Shared/Stats/StatsClient.cs",
+      "Shared/Tools.cs"
+    ],
+    "Shared/Network/GitHub.cs": [
+      "Shared/Config/ConfigManager.cs",
+      "Shared/Config/CoreConfig.cs"
+    ],
+    "Shared/Network/NuGetClient.cs": [
+      "Shared/Config/ConfigManager.cs",
+      "Shared/Network/NuGetLogger.cs",
+      "Shared/Network/NuGetPackage.cs",
+      "Shared/Network/NuGetPackageId.cs"
+    ],
+    "Shared/Network/NuGetPackageList.cs": [
+      "Shared/Network/NuGetPackageId.cs"
+    ],
+    "Shared/PluginList.cs": [
+      "Compiler/RoslynCompiler.cs",
+      "Shared/Config/PluginDataConfig.cs",
+      "Shared/Config/ProfilesConfig.cs",
+      "Shared/Config/Sources/LocalHubConfig.cs",
+      "Shared/Config/Sources/LocalPluginConfig.cs",
+      "Shared/Config/Sources/ModConfig.cs",
+      "Shared/Config/Sources/RemoteHubConfig.cs",
+      "Shared/Config/Sources/RemotePluginConfig.cs",
+      "Shared/Config/SourcesConfig.cs",
+      "Shared/Data/LocalFolderPlugin.cs",
+      "Shared/Data/LocalPlugin.cs",
+      "Shared/Data/ModPlugin.cs",
+      "Shared/Data/ObsoletePlugin.cs",
+      "Shared/Data/PluginData.cs",
+      "Shared/Data/Profile.cs",
+      "Shared/Network/GitHub.cs",
+      "Shared/Tools.cs"
+    ],
+    "Shared/Preloader.cs": [
+      "Shared/AssemblyResolver.cs",
+      "Shared/Tools.cs"
+    ],
+    "Shared/Stats/Model/PluginStats.cs": [
+      "Shared/Data/PluginData.cs",
+      "Shared/Stats/Model/PluginStat.cs"
+    ],
+    "Shared/Stats/StatsClient.cs": [
+      "Shared/Config/ConfigManager.cs",
+      "Shared/Network/SimpleHttpClient.cs",
+      "Shared/Stats/Model/ConsentRequest.cs",
+      "Shared/Stats/Model/PluginStat.cs",
+      "Shared/Stats/Model/PluginStats.cs",
+      "Shared/Stats/Model/TrackRequest.cs",
+      "Shared/Stats/Model/VoteRequest.cs",
+      "Shared/Tools.cs"
+    ],
+    "Shared/Tools.cs": [
+      "Compiler/RoslynCompiler.cs"
+    ],
+    "Shared/Updater.cs": [
+      "Shared/Config/ConfigManager.cs",
+      "Shared/Data/GitHubPlugin.AssetFile.cs",
+      "Shared/Data/GitHubPlugin.CacheManifest.cs",
+      "Shared/Data/GitHubPlugin.cs",
+      "Shared/Flags.cs",
+      "Shared/Network/GitHub.cs",
+      "Shared/Tools.cs"
+    ]
+  },
+  "used_by": {
+    "Compiler/PublicizedAssemblies.cs": [
+      "Compiler/RoslynCompiler.cs"
+    ],
+    "Compiler/Publicizer.cs": [
+      "Compiler/PublicizedAssemblies.cs"
+    ],
+    "Compiler/RoslynCompiler.cs": [
+      "Legacy/Compiler/Interim.cs",
+      "Legacy/Compiler/Legacy.cs",
+      "Shared/Data/GitHubPlugin.cs",
+      "Shared/Data/LocalFolderPlugin.cs",
+      "Shared/Data/ObsoletePlugin.cs",
+      "Shared/Data/PluginData.cs",
+      "Shared/PluginList.cs",
+      "Shared/Tools.cs"
+    ],
+    "Compiler/RoslynReferences.cs": [
+      "Compiler/Publicizer.cs",
+      "Compiler/RoslynCompiler.cs",
+      "Legacy/Compiler/Interim.cs",
+      "Legacy/Compiler/Legacy.cs"
+    ],
+    "Legacy/Commands/CommandService.cs": [
+      "Legacy/Loader/PluginLoader.cs",
+      "Legacy/Patch/Patch_ServerChat.cs"
+    ],
+    "Legacy/Commands/MagnetarCommands.cs": [
+      "Legacy/Loader/PluginLoader.cs"
+    ],
+    "Legacy/Commands/ServerCommandResponder.cs": [
+      "Legacy/Commands/CommandService.cs"
+    ],
+    "Legacy/Compiler/Interim.cs": [
+      "Legacy/Compiler/Legacy.cs",
+      "Legacy/Program.cs"
+    ],
+    "Legacy/Compiler/Legacy.cs": [
+      "Legacy/Compiler/Interim.cs",
+      "Legacy/Program.cs"
+    ],
+    "Legacy/Compiler/References.cs": [
+      "Legacy/Compiler/Interim.cs",
+      "Legacy/Compiler/Legacy.cs"
+    ],
+    "Legacy/Launcher/Folder.cs": [
+      "Legacy/Extensions/ModPlugin.cs",
+      "Legacy/Program.cs"
+    ],
+    "Legacy/Launcher/Game.cs": [
+      "Legacy/Launcher/ServerControl.cs",
+      "Legacy/Program.cs"
+    ],
+    "Legacy/Loader/NativeLibraryPreloader.cs": [
+      "Legacy/Program.cs"
+    ],
+    "Legacy/Loader/PluginInstance.cs": [
+      "Legacy/Loader/PluginLoader.cs"
+    ],
+    "Legacy/Loader/PluginLoader.cs": [
+      "Legacy/Launcher/ServerControl.cs",
+      "Legacy/Patch/Patch_ComponentRegistered.cs",
+      "Legacy/Patch/Patch_LoadScripts.cs",
+      "Legacy/Patch/Patch_ServerChat.cs",
+      "Legacy/Program.cs"
+    ],
+    "Legacy/Loader/SteamMods.cs": [
+      "Legacy/Loader/PluginLoader.cs",
+      "Legacy/Patch/Patch_MySessionLoader.cs"
+    ],
+    "Legacy/Patch/Patch_Compile.cs": [
+      "Legacy/Patch/Patch_MyDefinitionErrors.cs"
+    ],
+    "Legacy/Patch/Patch_MyDefinitionErrors.cs": [
+      "Legacy/Patch/Patch_MyScriptManager.cs"
+    ],
+    "Legacy/Patch/Patch_PrepareCrashReport.cs": [
+      "Legacy/Program.cs"
+    ],
+    "Legacy/Paths/PathResolverBinder.cs": [
+      "Legacy/Loader/PluginLoader.cs"
+    ],
+    "Legacy/Paths/ReflectionPathResolver.cs": [
+      "Legacy/Paths/PathResolverBinder.cs"
+    ],
+    "PluginSdk/Commands/ArgumentBinder.cs": [
+      "PluginSdk/Commands/CommandDispatcher.cs",
+      "PluginSdk/Commands/RegisteredCommand.cs"
+    ],
+    "PluginSdk/Commands/CommandAttribute.cs": [
+      "PluginSdk/Commands/CommandRegistry.cs"
+    ],
+    "PluginSdk/Commands/CommandCaller.cs": [
+      "Legacy/Commands/CommandService.cs",
+      "Legacy/Commands/ServerCommandResponder.cs",
+      "PluginSdk/Commands/CommandContext.cs",
+      "PluginSdk/Commands/CommandDispatcher.cs",
+      "PluginSdk/Commands/ICommandResponder.cs",
+      "PluginSdkTests/CommandTests.cs"
+    ],
+    "PluginSdk/Commands/CommandContext.cs": [
+      "PluginSdk/Commands/CommandDispatcher.cs",
+      "PluginSdk/Commands/CommandModule.cs",
+      "PluginSdk/Commands/RegisteredCommand.cs"
+    ],
+    "PluginSdk/Commands/CommandDispatcher.cs": [
+      "Legacy/Commands/CommandService.cs",
+      "PluginSdkTests/CommandTests.cs"
+    ],
+    "PluginSdk/Commands/CommandLine.cs": [
+      "PluginSdk/Commands/CommandDispatcher.cs"
+    ],
+    "PluginSdk/Commands/CommandModule.cs": [
+      "Legacy/Commands/MagnetarCommands.cs",
+      "PluginSdk/Commands/CommandRegistry.cs",
+      "PluginSdk/Commands/RegisteredCommand.cs",
+      "PluginSdkTests/CommandTests.cs"
+    ],
+    "PluginSdk/Commands/CommandRegistrationException.cs": [
+      "Legacy/Commands/CommandService.cs",
+      "PluginSdk/Commands/CommandRegistry.cs",
+      "PluginSdkTests/CommandTests.cs"
+    ],
+    "PluginSdk/Commands/CommandRegistry.cs": [
+      "Legacy/Commands/CommandService.cs",
+      "PluginSdk/Commands/CommandDispatcher.cs",
+      "PluginSdkTests/CommandTests.cs"
+    ],
+    "PluginSdk/Commands/CommandReply.cs": [
+      "Legacy/Commands/ServerCommandResponder.cs",
+      "PluginSdk/Commands/CommandContext.cs",
+      "PluginSdk/Commands/CommandDispatcher.cs",
+      "PluginSdk/Commands/ICommandResponder.cs",
+      "PluginSdkTests/CommandTests.cs"
+    ],
+    "PluginSdk/Commands/CommandRoot.cs": [
+      "Legacy/Commands/MagnetarCommands.cs",
+      "PluginSdk/Commands/CommandDispatcher.cs",
+      "PluginSdk/Commands/CommandRegistry.cs",
+      "PluginSdkTests/CommandTests.cs"
+    ],
+    "PluginSdk/Commands/CommandRootAttribute.cs": [
+      "PluginSdk/Commands/CommandRegistry.cs"
+    ],
+    "PluginSdk/Commands/ICommandRegistrar.cs": [
+      "Legacy/Commands/CommandService.cs",
+      "PluginSdk/Commands/ServerCommands.cs"
+    ],
+    "PluginSdk/Commands/ICommandResponder.cs": [
+      "Legacy/Commands/ServerCommandResponder.cs",
+      "PluginSdk/Commands/CommandContext.cs",
+      "PluginSdk/Commands/CommandDispatcher.cs",
+      "PluginSdkTests/CommandTests.cs"
+    ],
+    "PluginSdk/Commands/PermissionAttribute.cs": [
+      "PluginSdk/Commands/CommandRegistry.cs"
+    ],
+    "PluginSdk/Commands/RegisteredCommand.cs": [
+      "PluginSdk/Commands/CommandDispatcher.cs",
+      "PluginSdk/Commands/CommandRegistry.cs",
+      "PluginSdk/Commands/CommandRoot.cs"
+    ],
+    "PluginSdk/Commands/ServerCommands.cs": [
+      "Legacy/Loader/PluginLoader.cs"
+    ],
+    "PluginSdk/Config/ConfigAttributes.cs": [
+      "PluginSdk/Config/ConfigSchema.cs",
+      "PluginSdk/Config/PluginConfig.cs",
+      "PluginSdkTests/TestConfig.cs"
+    ],
+    "PluginSdk/Config/ConfigSchema.cs": [
+      "PluginSdk/Config/ConfigStorage.cs",
+      "PluginSdkTests/SchemaTests.cs",
+      "PluginSdkTests/SerializationTests.cs"
+    ],
+    "PluginSdk/Config/ConfigStorage.cs": [
+      "PluginSdkTests/SchemaTests.cs",
+      "PluginSdkTests/SerializationTests.cs"
+    ],
+    "PluginSdk/Config/PluginConfig.cs": [
+      "PluginSdk/Config/ConfigSchema.cs",
+      "PluginSdk/Config/ConfigStorage.cs",
+      "PluginSdkTests/SchemaTests.cs",
+      "PluginSdkTests/TestConfig.cs"
+    ],
+    "PluginSdk/Config/TypeSerialization.cs": [
+      "PluginSdk/Config/ConfigStorage.cs",
+      "PluginSdk/Config/PluginConfig.cs"
+    ],
+    "PluginSdk/Logging/ILogSink.cs": [
+      "PluginSdk/Logging/LogEnvironment.cs",
+      "PluginSdk/Logging/Logger.cs",
+      "PluginSdk/Logging/MagnetarLogSink.cs",
+      "PluginSdk/Logging/QuasarLogSink.cs",
+      "PluginSdkTests/LoggingTests.cs"
+    ],
+    "PluginSdk/Logging/LogEntry.cs": [
+      "PluginSdk/Logging/ILogSink.cs",
+      "PluginSdk/Logging/Logger.cs",
+      "PluginSdk/Logging/MagnetarLogSink.cs",
+      "PluginSdk/Logging/QuasarLogSink.cs",
+      "PluginSdkTests/LoggingTests.cs"
+    ],
+    "PluginSdk/Logging/LogEnvironment.cs": [
+      "PluginSdk/Logging/Logger.cs",
+      "PluginSdkTests/LoggingTests.cs"
+    ],
+    "PluginSdk/Logging/LogJson.cs": [
+      "PluginSdk/Logging/MagnetarLogSink.cs",
+      "PluginSdk/Logging/QuasarLogSink.cs"
+    ],
+    "PluginSdk/Logging/LogLevel.cs": [
+      "Legacy/Loader/PluginInstance.cs",
+      "PluginSdk/Logging/LogEntry.cs",
+      "PluginSdk/Logging/Logger.cs",
+      "PluginSdk/Logging/MagnetarLogSink.cs",
+      "PluginSdkTests/LoggingTests.cs"
+    ],
+    "PluginSdk/Logging/Logger.cs": [
+      "PluginSdkTests/LoggingTests.cs"
+    ],
+    "PluginSdk/Logging/MagnetarLogSink.cs": [
+      "PluginSdk/Logging/LogEnvironment.cs",
+      "PluginSdkTests/LoggingTests.cs"
+    ],
+    "PluginSdk/Logging/QuasarLogSink.cs": [
+      "PluginSdk/Logging/LogEnvironment.cs",
+      "PluginSdkTests/LoggingTests.cs"
+    ],
+    "PluginSdk/Paths/IPathResolver.cs": [
+      "Legacy/Paths/ReflectionPathResolver.cs",
+      "PluginSdk/Paths/PathResolver.cs",
+      "PluginSdk/Paths/ShimPathResolver.cs",
+      "PluginSdkTests/PathResolverTests.cs"
+    ],
+    "PluginSdk/Paths/PathResolver.cs": [
+      "Legacy/Paths/PathResolverBinder.cs",
+      "PluginSdkTests/PathResolverTests.cs"
+    ],
+    "PluginSdk/Paths/ShimPathResolver.cs": [
+      "PluginSdk/Paths/PathResolver.cs"
+    ],
+    "PluginSdk/Tools/SerializableDictionary.cs": [
+      "PluginSdkTests/ChangeNotificationTests.cs",
+      "PluginSdkTests/SerializationTests.cs",
+      "PluginSdkTests/TestConfig.cs"
+    ],
+    "PluginSdkTests/TestConfig.cs": [
+      "PluginSdkTests/ChangeNotificationTests.cs",
+      "PluginSdkTests/SchemaTests.cs",
+      "PluginSdkTests/SerializationTests.cs"
+    ],
+    "Shared/AssemblyResolver.cs": [
+      "Legacy/Program.cs",
+      "Shared/Data/GitHubPlugin.cs",
+      "Shared/Data/LocalFolderPlugin.cs",
+      "Shared/Data/LocalPlugin.cs",
+      "Shared/Preloader.cs"
+    ],
+    "Shared/Config/ConfigManager.cs": [
+      "Legacy/Loader/PluginLoader.cs",
+      "Legacy/Patch/Patch_MyDefinitionManager.cs",
+      "Legacy/Patch/Patch_MyScriptManager.cs",
+      "Legacy/Program.cs",
+      "Shared/Data/GitHubPlugin.CacheManifest.cs",
+      "Shared/Data/GitHubPlugin.cs",
+      "Shared/Data/LocalFolderPlugin.cs",
+      "Shared/Data/ModPlugin.cs",
+      "Shared/Data/PluginData.cs",
+      "Shared/Loader.cs",
+      "Shared/Network/GitHub.cs",
+      "Shared/Network/NuGetClient.cs",
+      "Shared/Stats/StatsClient.cs",
+      "Shared/Updater.cs"
+    ],
+    "Shared/Config/CoreConfig.cs": [
+      "Legacy/Program.cs",
+      "Shared/Config/ConfigManager.cs",
+      "Shared/Loader.cs",
+      "Shared/Network/GitHub.cs"
+    ],
+    "Shared/Config/GitHubPluginConfig.cs": [
+      "Shared/Config/PluginDataConfig.cs",
+      "Shared/Data/GitHubPlugin.cs",
+      "Shared/Data/Profile.cs"
+    ],
+    "Shared/Config/LocalFolderConfig.cs": [
+      "Shared/Config/PluginDataConfig.cs",
+      "Shared/Data/LocalFolderPlugin.cs",
+      "Shared/Data/Profile.cs"
+    ],
+    "Shared/Config/PluginDataConfig.cs": [
+      "Shared/Config/GitHubPluginConfig.cs",
+      "Shared/Config/LocalFolderConfig.cs",
+      "Shared/Data/GitHubPlugin.cs",
+      "Shared/Data/LocalFolderPlugin.cs",
+      "Shared/Data/PluginData.cs",
+      "Shared/Data/Profile.cs",
+      "Shared/PluginList.cs"
+    ],
+    "Shared/Config/ProfilesConfig.cs": [
+      "Shared/Config/ConfigManager.cs",
+      "Shared/Loader.cs",
+      "Shared/PluginList.cs"
+    ],
+    "Shared/Config/Sources/LocalHubConfig.cs": [
+      "Shared/Config/SourcesConfig.cs",
+      "Shared/PluginList.cs"
+    ],
+    "Shared/Config/Sources/LocalPluginConfig.cs": [
+      "Shared/Config/SourcesConfig.cs",
+      "Shared/PluginList.cs"
+    ],
+    "Shared/Config/Sources/ModConfig.cs": [
+      "Shared/Config/SourcesConfig.cs",
+      "Shared/PluginList.cs"
+    ],
+    "Shared/Config/Sources/RemoteHubConfig.cs": [
+      "Legacy/Program.cs",
+      "Shared/Config/ConfigManager.cs",
+      "Shared/Config/SourcesConfig.cs",
+      "Shared/PluginList.cs"
+    ],
+    "Shared/Config/Sources/RemotePluginConfig.cs": [
+      "Shared/Config/SourcesConfig.cs",
+      "Shared/PluginList.cs"
+    ],
+    "Shared/Config/SourcesConfig.cs": [
+      "Shared/Config/ConfigManager.cs",
+      "Shared/PluginList.cs"
+    ],
+    "Shared/Data/GitHubPlugin.AssetFile.cs": [
+      "Shared/Data/GitHubPlugin.CacheManifest.cs",
+      "Shared/Data/GitHubPlugin.cs",
+      "Shared/Data/LocalFolderPlugin.cs",
+      "Shared/Data/LocalPlugin.cs",
+      "Shared/Data/PluginData.cs",
+      "Shared/Updater.cs"
+    ],
+    "Shared/Data/GitHubPlugin.CacheManifest.cs": [
+      "Shared/Data/GitHubPlugin.AssetFile.cs",
+      "Shared/Data/GitHubPlugin.cs",
+      "Shared/Data/LocalFolderPlugin.cs",
+      "Shared/Data/LocalPlugin.cs",
+      "Shared/Data/PluginData.cs",
+      "Shared/Updater.cs"
+    ],
+    "Shared/Data/GitHubPlugin.cs": [
+      "Shared/Data/GitHubPlugin.AssetFile.cs",
+      "Shared/Data/GitHubPlugin.CacheManifest.cs",
+      "Shared/Data/LocalFolderPlugin.cs",
+      "Shared/Data/LocalPlugin.cs",
+      "Shared/Data/PluginData.cs",
+      "Shared/Updater.cs"
+    ],
+    "Shared/Data/LocalFolderPlugin.cs": [
+      "Shared/PluginList.cs"
+    ],
+    "Shared/Data/LocalPlugin.cs": [
+      "Shared/Config/SourcesConfig.cs",
+      "Shared/PluginList.cs"
+    ],
+    "Shared/Data/ModPlugin.cs": [
+      "Legacy/Extensions/ModPlugin.cs",
+      "Legacy/Patch/Patch_MyDefinitionManager.cs",
+      "Legacy/Patch/Patch_MyScriptManager.cs",
+      "Shared/Data/PluginData.cs",
+      "Shared/Loader.cs",
+      "Shared/PluginList.cs"
+    ],
+    "Shared/Data/ObsoletePlugin.cs": [
+      "Shared/Data/PluginData.cs",
+      "Shared/PluginList.cs"
+    ],
+    "Shared/Data/PluginData.cs": [
+      "Legacy/Loader/PluginInstance.cs",
+      "Shared/Data/GitHubPlugin.cs",
+      "Shared/Data/LocalFolderPlugin.cs",
+      "Shared/Data/LocalPlugin.cs",
+      "Shared/Data/ModPlugin.cs",
+      "Shared/Data/ObsoletePlugin.cs",
+      "Shared/Loader.cs",
+      "Shared/PluginList.cs",
+      "Shared/Stats/Model/PluginStats.cs"
+    ],
+    "Shared/Data/PluginStatus.cs": [
+      "Legacy/Loader/PluginInstance.cs",
+      "Shared/Data/GitHubPlugin.cs",
+      "Shared/Data/LocalFolderPlugin.cs",
+      "Shared/Data/LocalPlugin.cs",
+      "Shared/Data/PluginData.cs"
+    ],
+    "Shared/Data/Profile.cs": [
+      "Legacy/Loader/PluginLoader.cs",
+      "Legacy/Patch/Patch_MyDefinitionManager.cs",
+      "Legacy/Patch/Patch_MyScriptManager.cs",
+      "Shared/Config/ProfilesConfig.cs",
+      "Shared/Data/GitHubPlugin.cs",
+      "Shared/Data/LocalFolderPlugin.cs",
+      "Shared/Data/LocalPlugin.cs",
+      "Shared/Data/ModPlugin.cs",
+      "Shared/Data/PluginData.cs",
+      "Shared/PluginList.cs"
+    ],
+    "Shared/Flags.cs": [
+      "Legacy/Compiler/Interim.cs",
+      "Legacy/Launcher/Game.cs",
+      "Legacy/Loader/PluginLoader.cs",
+      "Legacy/Patch/Patch_MySessionLoader.cs",
+      "Legacy/Program.cs",
+      "Shared/Data/PluginData.cs",
+      "Shared/Loader.cs",
+      "Shared/Updater.cs"
+    ],
+    "Shared/LogFile.cs": [
+      "Legacy/Launcher/Game.cs"
+    ],
+    "Shared/Network/GitHub.cs": [
+      "Shared/Data/GitHubPlugin.CacheManifest.cs",
+      "Shared/Data/GitHubPlugin.cs",
+      "Shared/Data/Profile.cs",
+      "Shared/Loader.cs",
+      "Shared/PluginList.cs",
+      "Shared/Updater.cs"
+    ],
+    "Shared/Network/NuGetClient.cs": [
+      "Shared/Data/GitHubPlugin.cs",
+      "Shared/Data/LocalFolderPlugin.cs"
+    ],
+    "Shared/Network/NuGetLogger.cs": [
+      "Shared/Network/NuGetClient.cs"
+    ],
+    "Shared/Network/NuGetPackage.cs": [
+      "Shared/Data/GitHubPlugin.cs",
+      "Shared/Data/LocalFolderPlugin.cs",
+      "Shared/Network/NuGetClient.cs"
+    ],
+    "Shared/Network/NuGetPackageId.cs": [
+      "Shared/Network/NuGetClient.cs",
+      "Shared/Network/NuGetPackageList.cs"
+    ],
+    "Shared/Network/NuGetPackageList.cs": [
+      "Shared/Data/GitHubPlugin.cs",
+      "Shared/Data/LocalFolderPlugin.cs"
+    ],
+    "Shared/Network/SimpleHttpClient.cs": [
+      "Shared/Stats/StatsClient.cs"
+    ],
+    "Shared/PluginList.cs": [
+      "Legacy/Loader/PluginLoader.cs",
+      "Legacy/Patch/Patch_MyDefinitionManager.cs",
+      "Legacy/Patch/Patch_MyScriptManager.cs",
+      "Shared/Config/ConfigManager.cs"
+    ],
+    "Shared/PluginProgress.cs": [
+      "Shared/Data/GitHubPlugin.cs",
+      "Shared/Data/LocalFolderPlugin.cs",
+      "Shared/Loader.cs"
+    ],
+    "Shared/Preloader.cs": [
+      "Legacy/Program.cs"
+    ],
+    "Shared/Stats/Model/ConsentRequest.cs": [
+      "Shared/Stats/StatsClient.cs"
+    ],
+    "Shared/Stats/Model/PluginStat.cs": [
+      "Shared/Stats/Model/PluginStats.cs",
+      "Shared/Stats/StatsClient.cs"
+    ],
+    "Shared/Stats/Model/PluginStats.cs": [
+      "Shared/Config/ConfigManager.cs",
+      "Shared/Stats/StatsClient.cs"
+    ],
+    "Shared/Stats/Model/TrackRequest.cs": [
+      "Shared/Stats/StatsClient.cs"
+    ],
+    "Shared/Stats/Model/VoteRequest.cs": [
+      "Shared/Stats/StatsClient.cs"
+    ],
+    "Shared/Stats/StatsClient.cs": [
+      "Shared/Config/ConfigManager.cs",
+      "Shared/Loader.cs"
+    ],
+    "Shared/Steam.cs": [
+      "Legacy/Extensions/ModPlugin.cs",
+      "Legacy/Launcher/Folder.cs",
+      "Legacy/Loader/SteamMods.cs",
+      "Legacy/Patch/Patch_Compile.cs",
+      "Legacy/Program.cs"
+    ],
+    "Shared/Tools.cs": [
+      "Legacy/Compiler/References.cs",
+      "Legacy/Launcher/Folder.cs",
+      "Legacy/Loader/PluginInstance.cs",
+      "Legacy/Patch/Patch_MyDefinitionErrors.cs",
+      "Legacy/Program.cs",
+      "Shared/Config/ProfilesConfig.cs",
+      "Shared/Data/GitHubPlugin.AssetFile.cs",
+      "Shared/Data/GitHubPlugin.cs",
+      "Shared/Data/LocalFolderPlugin.cs",
+      "Shared/Data/PluginData.cs",
+      "Shared/Data/Profile.cs",
+      "Shared/Launcher.cs",
+      "Shared/Loader.cs",
+      "Shared/PluginList.cs",
+      "Shared/Preloader.cs",
+      "Shared/Stats/StatsClient.cs",
+      "Shared/Updater.cs"
+    ],
+    "Shared/Updater.cs": [
+      "Legacy/Program.cs"
+    ]
+  }
+}

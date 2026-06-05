@@ -1,0 +1,269 @@
+{
+  "Compiler": {
+    "project": "Compiler",
+    "files": [
+      "Compiler/LogFile.cs",
+      "Compiler/PublicizedAssemblies.cs",
+      "Compiler/Publicizer.cs",
+      "Compiler/RoslynCompiler.cs",
+      "Compiler/RoslynReferences.cs"
+    ],
+    "file_count": 5,
+    "total_lines": 562,
+    "model": "opus",
+    "dominant_tier": 1
+  },
+  "Legacy.Commands": {
+    "project": "Legacy",
+    "files": [
+      "Legacy/Commands/CommandService.cs",
+      "Legacy/Commands/MagnetarCommands.cs",
+      "Legacy/Commands/ServerCommandResponder.cs"
+    ],
+    "file_count": 3,
+    "total_lines": 196,
+    "model": "sonnet",
+    "dominant_tier": 2
+  },
+  "Legacy.Integration": {
+    "project": "Legacy",
+    "files": [
+      "Legacy/Compiler/Interim.cs",
+      "Legacy/Compiler/Legacy.cs",
+      "Legacy/Compiler/References.cs",
+      "Legacy/Extensions/ModPlugin.cs",
+      "Legacy/Paths/PathResolverBinder.cs",
+      "Legacy/Paths/ReflectionPathResolver.cs"
+    ],
+    "file_count": 6,
+    "total_lines": 471,
+    "model": "sonnet",
+    "dominant_tier": 2
+  },
+  "Legacy.Launcher": {
+    "project": "Legacy",
+    "files": [
+      "Legacy/Launcher/Folder.cs",
+      "Legacy/Launcher/Game.cs",
+      "Legacy/Launcher/ServerControl.cs",
+      "Legacy/Program.cs"
+    ],
+    "file_count": 4,
+    "total_lines": 1197,
+    "model": "opus",
+    "dominant_tier": 1
+  },
+  "Legacy.Loader": {
+    "project": "Legacy",
+    "files": [
+      "Legacy/Loader/LoaderTools.cs",
+      "Legacy/Loader/NativeLibraryPreloader.cs",
+      "Legacy/Loader/PluginInstance.cs",
+      "Legacy/Loader/PluginLoader.cs",
+      "Legacy/Loader/SteamMods.cs"
+    ],
+    "file_count": 5,
+    "total_lines": 932,
+    "model": "opus",
+    "dominant_tier": 1
+  },
+  "Legacy.Patch": {
+    "project": "Legacy",
+    "files": [
+      "Legacy/Patch/Patch_Compile.cs",
+      "Legacy/Patch/Patch_ComponentRegistered.cs",
+      "Legacy/Patch/Patch_DedicatedServerRun.cs",
+      "Legacy/Patch/Patch_ExitThreadSafe.cs",
+      "Legacy/Patch/Patch_LoadScripts.cs",
+      "Legacy/Patch/Patch_MyDefinitionErrors.cs",
+      "Legacy/Patch/Patch_MyDefinitionManager.cs",
+      "Legacy/Patch/Patch_MyScriptManager.cs",
+      "Legacy/Patch/Patch_MySessionLoader.cs",
+      "Legacy/Patch/Patch_PrepareCrashReport.cs",
+      "Legacy/Patch/Patch_ServerChat.cs"
+    ],
+    "file_count": 11,
+    "total_lines": 488,
+    "model": "sonnet",
+    "dominant_tier": 2
+  },
+  "PluginSdk.Commands": {
+    "project": "PluginSdk",
+    "files": [
+      "PluginSdk/Commands/ArgumentBinder.cs",
+      "PluginSdk/Commands/CommandAttribute.cs",
+      "PluginSdk/Commands/CommandCaller.cs",
+      "PluginSdk/Commands/CommandContext.cs",
+      "PluginSdk/Commands/CommandDispatcher.cs",
+      "PluginSdk/Commands/CommandLine.cs",
+      "PluginSdk/Commands/CommandModule.cs",
+      "PluginSdk/Commands/CommandRegistrationException.cs",
+      "PluginSdk/Commands/CommandRegistry.cs",
+      "PluginSdk/Commands/CommandReply.cs",
+      "PluginSdk/Commands/CommandRoot.cs",
+      "PluginSdk/Commands/CommandRootAttribute.cs",
+      "PluginSdk/Commands/ICommandRegistrar.cs",
+      "PluginSdk/Commands/ICommandResponder.cs",
+      "PluginSdk/Commands/PermissionAttribute.cs",
+      "PluginSdk/Commands/RegisteredCommand.cs",
+      "PluginSdk/Commands/ServerCommands.cs"
+    ],
+    "file_count": 17,
+    "total_lines": 1226,
+    "model": "sonnet",
+    "dominant_tier": 1
+  },
+  "PluginSdk.Config": {
+    "project": "PluginSdk",
+    "files": [
+      "PluginSdk/Config/ConfigAttributes.cs",
+      "PluginSdk/Config/ConfigSchema.cs",
+      "PluginSdk/Config/ConfigStorage.cs",
+      "PluginSdk/Config/PluginConfig.cs",
+      "PluginSdk/Config/TypeSerialization.cs"
+    ],
+    "file_count": 5,
+    "total_lines": 1817,
+    "model": "opus",
+    "dominant_tier": 1
+  },
+  "PluginSdk.Logging": {
+    "project": "PluginSdk",
+    "files": [
+      "PluginSdk/Logging/ILogSink.cs",
+      "PluginSdk/Logging/LogEntry.cs",
+      "PluginSdk/Logging/LogEnvironment.cs",
+      "PluginSdk/Logging/LogJson.cs",
+      "PluginSdk/Logging/LogLevel.cs",
+      "PluginSdk/Logging/Logger.cs",
+      "PluginSdk/Logging/MagnetarLogSink.cs",
+      "PluginSdk/Logging/QuasarLogSink.cs"
+    ],
+    "file_count": 8,
+    "total_lines": 391,
+    "model": "sonnet",
+    "dominant_tier": 2
+  },
+  "PluginSdk.Runtime": {
+    "project": "PluginSdk",
+    "files": [
+      "PluginSdk/Paths/IPathResolver.cs",
+      "PluginSdk/Paths/PathResolver.cs",
+      "PluginSdk/Paths/ShimPathResolver.cs",
+      "PluginSdk/ServerControl.cs",
+      "PluginSdk/Tools/SerializableDictionary.cs"
+    ],
+    "file_count": 5,
+    "total_lines": 353,
+    "model": "sonnet",
+    "dominant_tier": 2
+  },
+  "PluginSdkTests": {
+    "project": "PluginSdkTests",
+    "files": [
+      "PluginSdkTests/ChangeNotificationTests.cs",
+      "PluginSdkTests/CommandTests.cs",
+      "PluginSdkTests/LoggingTests.cs",
+      "PluginSdkTests/PathResolverTests.cs",
+      "PluginSdkTests/SchemaTests.cs",
+      "PluginSdkTests/SerializationTests.cs",
+      "PluginSdkTests/ServerControlTests.cs",
+      "PluginSdkTests/TestConfig.cs"
+    ],
+    "file_count": 8,
+    "total_lines": 2261,
+    "model": "sonnet",
+    "dominant_tier": 2
+  },
+  "Shared.Config": {
+    "project": "Shared",
+    "files": [
+      "Shared/Config/ConfigManager.cs",
+      "Shared/Config/CoreConfig.cs",
+      "Shared/Config/GitHubPluginConfig.cs",
+      "Shared/Config/LocalFolderConfig.cs",
+      "Shared/Config/PluginDataConfig.cs",
+      "Shared/Config/ProfilesConfig.cs",
+      "Shared/Config/Sources/LocalHubConfig.cs",
+      "Shared/Config/Sources/LocalPluginConfig.cs",
+      "Shared/Config/Sources/ModConfig.cs",
+      "Shared/Config/Sources/RemoteHubConfig.cs",
+      "Shared/Config/Sources/RemotePluginConfig.cs",
+      "Shared/Config/SourcesConfig.cs"
+    ],
+    "file_count": 12,
+    "total_lines": 521,
+    "model": "sonnet",
+    "dominant_tier": 2
+  },
+  "Shared.Core": {
+    "project": "Shared",
+    "files": [
+      "Shared/AssemblyResolver.cs",
+      "Shared/Flags.cs",
+      "Shared/Launcher.cs",
+      "Shared/Loader.cs",
+      "Shared/LogFile.cs",
+      "Shared/PluginList.cs",
+      "Shared/PluginProgress.cs",
+      "Shared/Preloader.cs",
+      "Shared/Steam.cs",
+      "Shared/Tools.cs",
+      "Shared/Updater.cs"
+    ],
+    "file_count": 11,
+    "total_lines": 2064,
+    "model": "opus",
+    "dominant_tier": 1
+  },
+  "Shared.Data": {
+    "project": "Shared",
+    "files": [
+      "Shared/Data/GitHubPlugin.AssetFile.cs",
+      "Shared/Data/GitHubPlugin.CacheManifest.cs",
+      "Shared/Data/GitHubPlugin.cs",
+      "Shared/Data/LocalFolderPlugin.cs",
+      "Shared/Data/LocalPlugin.cs",
+      "Shared/Data/ModPlugin.cs",
+      "Shared/Data/ObsoletePlugin.cs",
+      "Shared/Data/PluginData.cs",
+      "Shared/Data/PluginStatus.cs",
+      "Shared/Data/Profile.cs"
+    ],
+    "file_count": 10,
+    "total_lines": 1685,
+    "model": "opus",
+    "dominant_tier": 1
+  },
+  "Shared.Network": {
+    "project": "Shared",
+    "files": [
+      "Shared/Network/GitHub.cs",
+      "Shared/Network/NuGetClient.cs",
+      "Shared/Network/NuGetLogger.cs",
+      "Shared/Network/NuGetPackage.cs",
+      "Shared/Network/NuGetPackageId.cs",
+      "Shared/Network/NuGetPackageList.cs",
+      "Shared/Network/SimpleHttpClient.cs"
+    ],
+    "file_count": 7,
+    "total_lines": 864,
+    "model": "sonnet",
+    "dominant_tier": 1
+  },
+  "Shared.Stats": {
+    "project": "Shared",
+    "files": [
+      "Shared/Stats/Model/ConsentRequest.cs",
+      "Shared/Stats/Model/PluginStat.cs",
+      "Shared/Stats/Model/PluginStats.cs",
+      "Shared/Stats/Model/TrackRequest.cs",
+      "Shared/Stats/Model/VoteRequest.cs",
+      "Shared/Stats/StatsClient.cs"
+    ],
+    "file_count": 6,
+    "total_lines": 190,
+    "model": "sonnet",
+    "dominant_tier": 2
+  }
+}

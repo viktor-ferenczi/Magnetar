@@ -1,0 +1,68 @@
+{
+  "Legacy.Commands": [
+    "PluginSdk.Commands"
+  ],
+  "Legacy.Integration": [
+    "Compiler",
+    "Legacy.Launcher",
+    "PluginSdk.Runtime",
+    "Shared.Core",
+    "Shared.Data"
+  ],
+  "Legacy.Launcher": [
+    "Legacy.Integration",
+    "Legacy.Loader",
+    "Legacy.Patch",
+    "Shared.Config",
+    "Shared.Core"
+  ],
+  "Legacy.Loader": [
+    "Legacy.Commands",
+    "Legacy.Integration",
+    "PluginSdk.Commands",
+    "PluginSdk.Logging",
+    "Shared.Config",
+    "Shared.Core",
+    "Shared.Data"
+  ],
+  "Legacy.Patch": [
+    "Legacy.Commands",
+    "Legacy.Loader",
+    "Shared.Config",
+    "Shared.Core",
+    "Shared.Data"
+  ],
+  "PluginSdkTests": [
+    "PluginSdk.Commands",
+    "PluginSdk.Config",
+    "PluginSdk.Logging",
+    "PluginSdk.Runtime"
+  ],
+  "Shared.Config": [
+    "Shared.Core",
+    "Shared.Data",
+    "Shared.Stats"
+  ],
+  "Shared.Core": [
+    "Compiler",
+    "Shared.Config",
+    "Shared.Data",
+    "Shared.Network",
+    "Shared.Stats"
+  ],
+  "Shared.Data": [
+    "Compiler",
+    "Shared.Config",
+    "Shared.Core",
+    "Shared.Network"
+  ],
+  "Shared.Network": [
+    "Shared.Config"
+  ],
+  "Shared.Stats": [
+    "Shared.Config",
+    "Shared.Core",
+    "Shared.Data",
+    "Shared.Network"
+  ]
+}

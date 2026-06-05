@@ -39,6 +39,16 @@ See **[Docs/Build.md](Docs/Build.md)** for full per-platform instructions —
 prerequisites, dedicated-server detection, dependency staging, publishing,
 and the build-time property/environment overrides.
 
+## Documentation
+
+* **[Docs/TOC.md](Docs/TOC.md)** — the **code handbook**: an architecture
+  overview, launch sequence, and a navigable module-by-module / file-by-file
+  reference for the entire source tree (start here to understand the internals).
+* **[Docs/Index.md](Docs/Index.md)** — flat index of every documented source file.
+* **[Docs/Build.md](Docs/Build.md)** — building and packaging.
+* **[skills/se-dev-plugin-sdk](skills/se-dev-plugin-sdk/SKILL.md)** — the
+  plugin-author handbook for `PluginSdk` (config, commands, logging, paths).
+
 ## Layout
 
 | Path                         | Purpose                                                           |
