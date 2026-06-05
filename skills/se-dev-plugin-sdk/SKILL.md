@@ -1,6 +1,6 @@
 ---
 name: se-dev-plugin-sdk
-description: Handbook for plugin developers using Magnetar's PluginSdk to declare configuration variables, the UI layout Quasar renders remotely, server-side chat commands, case-insensitive path resolution that works on both Windows and Linux, and to log through one environment-agnostic Logger.
+description: Handbook for plugin developers using Magnetar's PluginSdk to declare configuration variables, the UI layout Quasar renders remotely, server-side chat commands, server lifecycle control (save/reload/quit/restart) and reacting to admin shutdown/restart, case-insensitive path resolution that works on both Windows and Linux, and to log through one environment-agnostic Logger.
 license: MIT
 ---
 
@@ -40,8 +40,9 @@ the plugin writes one code path that works on both. See [Paths.md](Paths.md).
 
 The library also exposes a **`ServerControl`** facade so a plugin can drive the
 dedicated server's lifecycle — save the world, reload the dedicated config, and
-quit or restart the process — through static calls. See
-[ServerControl.md](ServerControl.md).
+quit or restart the process — through static calls, and a `Terminating` event so
+a plugin can react to an admin-driven shutdown or restart before the process
+goes down. See [ServerControl.md](ServerControl.md).
 
 When Magnetar compiles a plugin it defines a **platform preprocessor symbol**
 (`PLATFORM_WINDOWS` or `PLATFORM_LINUX`) for the OS the server runs on, so a
@@ -61,7 +62,7 @@ expect. See [Platform.md](Platform.md).
 | [Commands.md](Commands.md) | Adding server chat commands (`!prefix cmd`) with `[CommandRoot]` / `[Command]` modules. |
 | [Logging.md](Logging.md) | Logging through one environment-agnostic `Logger` — game log when standalone, JSON when managed by Quasar. |
 | [Paths.md](Paths.md) | Resolving filesystem paths case-insensitively via `PathResolver` so file handling works on both Windows and Linux. |
-| [ServerControl.md](ServerControl.md) | Driving the server lifecycle — save, reload config, quit, restart — via the static `ServerControl` facade. |
+| [ServerControl.md](ServerControl.md) | Driving the server lifecycle — save, reload config, quit, restart — via the static `ServerControl` facade, and reacting to admin shutdown/restart via its `Terminating` event. |
 | [Platform.md](Platform.md) | Using the `PLATFORM_WINDOWS` / `PLATFORM_LINUX` compile symbols Magnetar defines to branch on the OS the server runs on. |
 
 ## Minimal example

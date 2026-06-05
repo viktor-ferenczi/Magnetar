@@ -266,6 +266,9 @@ internal static class ServerControl
         if (!BeginTerminate())
             return;
 
+        // Deliberately does NOT raise Terminating: this backs SIGTERM/SIGINT and
+        // SE's internal ExitThreadSafe path, neither of which is an admin stop
+        // intent. Only the in-game !quit/!stop command (QuitWithoutSaving) does.
         LogFile.WriteLine("Saving world before shutdown");
         SaveWorld();
         DisposePlugins();
@@ -279,6 +282,7 @@ internal static class ServerControl
         if (!BeginTerminate())
             return;
 
+        PluginSdk.ServerControl.RaiseTerminating(PluginSdk.ServerTerminationKind.Shutdown);
         LogFile.WriteLine("Quitting without saving");
         DisposePlugins();
         FlushAll();
@@ -291,6 +295,7 @@ internal static class ServerControl
         if (!BeginTerminate())
             return;
 
+        PluginSdk.ServerControl.RaiseTerminating(PluginSdk.ServerTerminationKind.Restart);
         LogFile.WriteLine("Saving world before restart");
         SaveWorld();
         DisposePlugins();
@@ -304,6 +309,7 @@ internal static class ServerControl
         if (!BeginTerminate())
             return;
 
+        PluginSdk.ServerControl.RaiseTerminating(PluginSdk.ServerTerminationKind.Restart);
         LogFile.WriteLine("Restarting without saving");
         DisposePlugins();
         FlushAll();

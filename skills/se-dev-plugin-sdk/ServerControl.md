@@ -7,6 +7,10 @@ binds the real implementations at startup. These mirror the operations the host
 also triggers from POSIX signals (`SIGTERM`/`SIGINT` → `SaveAndQuit`, `SIGHUP`
 → `ReloadConfig`).
 
+It also raises a `Terminating` event so a plugin can *observe* an admin-driven
+shutdown or restart and react before the process goes down — see
+[Reacting to admin lifecycle commands](#reacting-to-admin-lifecycle-commands).
+
 ```csharp
 using PluginSdk;
 
@@ -26,6 +30,65 @@ only need `using PluginSdk;`.
 | `SaveAndRestart()` | `void` | Saves the world, then replaces the process with a fresh instance launched with the original command line, environment and working directory captured at first startup. |
 | `QuitWithoutSaving()` | `void` | Quits the process immediately with exit code 0, without saving. |
 | `RestartWithoutSaving()` | `void` | Restarts the process immediately (original command line, environment and working directory), without saving. |
+
+## Reacting to admin lifecycle commands
+
+The methods above let a plugin *cause* a lifecycle change. The `Terminating`
+event lets a plugin *observe* one an admin started, and run a little work before
+the server goes down — for example, notify an external control plane so it does
+not treat the stop as a crash and bring the server back.
+
+```csharp
+public static event Action<ServerTerminationKind> Terminating;
+
+public enum ServerTerminationKind
+{
+    Shutdown,   // !quit / !stop — the server is meant to stay down
+    Restart,    // !restart      — the server will come back up
+}
+```
+
+Subscribe in `Init`, unsubscribe in `Dispose`:
+
+```csharp
+using PluginSdk;
+
+public void Init(object gameInstance)
+{
+    ServerControl.Terminating += OnTerminating;
+}
+
+public void Dispose()
+{
+    ServerControl.Terminating -= OnTerminating;
+}
+
+private void OnTerminating(ServerTerminationKind kind)
+{
+    if (kind == ServerTerminationKind.Shutdown)
+        // an admin asked the server to stay down — react here
+        NotifyMyControlPlane();
+}
+```
+
+What you can rely on:
+
+- **In-game admin commands only.** It fires for the `!quit`/`!stop` command
+  (`Shutdown`) and the `!restart` command (`Restart`). It does **not** fire for
+  `SIGTERM`/`SIGINT` (e.g. `systemctl stop`) or SE's internal exit path — those
+  are not an admin lifecycle intent, so distinguish "stay down" from "comes
+  back" by the `kind`, not by inferring it from a process exit.
+- **Raised before teardown.** It fires on the thread performing the termination,
+  while plugins are still loaded and the session is still intact — before any
+  world save or plugin disposal. So your handler still has a live game and a
+  working plugin to act through.
+- **Keep handlers short.** Teardown continues once every handler returns. You
+  may block briefly (e.g. to flush a network message) but must not hang; a
+  handler that throws is isolated and never blocks the shutdown or the other
+  subscribers.
+- **Fires once per termination**, and only for these admin commands. Save
+  (`!save`) and config reload (`!reload`) do not raise it — they do not tear the
+  process down.
 
 ## Behaviour before the host binds
 

@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.CompilerServices;
+using VRage.Utils;
 
 // Only the host launcher may Bind the facade to its implementation.
 [assembly: InternalsVisibleTo("MagnetarInterim")]
@@ -29,6 +30,23 @@ namespace PluginSdk
     /// running on the update thread.
     /// </para>
     /// </summary>
+    /// <summary>
+    /// Why the dedicated server is tearing the current process down, reported by
+    /// <see cref="ServerControl.Terminating"/>. <see cref="Restart"/> means the
+    /// server will come back (a fresh instance is launched / the image is
+    /// replaced); <see cref="Shutdown"/> means it is meant to stay down.
+    /// </summary>
+    public enum ServerTerminationKind
+    {
+        /// <summary>An admin asked the server to stop and stay down, via the
+        /// in-game <c>!quit</c> / <c>!stop</c> command.</summary>
+        Shutdown,
+
+        /// <summary>The server is restarting and will come back up
+        /// (e.g. the <c>!restart</c> command).</summary>
+        Restart,
+    }
+
     public static class ServerControl
     {
         private static Func<bool> saveWorld = () => false;
@@ -37,6 +55,22 @@ namespace PluginSdk
         private static Action saveAndRestart = () => { };
         private static Action quitWithoutSaving = () => { };
         private static Action restartWithoutSaving = () => { };
+
+        /// <summary>
+        /// Raised once when an admin drives the server's lifecycle from in-game —
+        /// the <c>!quit</c>/<c>!stop</c> and <c>!restart</c> commands — carrying
+        /// the intent (<see cref="ServerTerminationKind.Shutdown"/> vs
+        /// <see cref="ServerTerminationKind.Restart"/>). It does NOT fire for OS
+        /// signals (SIGTERM/SIGINT) or SE's internal exit path, which are not
+        /// admin lifecycle intents. It fires on the thread performing the
+        /// termination, while plugins are still loaded and the session is intact,
+        /// and before any save or plugin disposal — so a handler may run a short
+        /// blocking task (e.g. flush a network message) to convey the intent
+        /// elsewhere. Handlers must return promptly: teardown continues once they
+        /// have all run, and an exception thrown by one handler does not stop the
+        /// others or the shutdown.
+        /// </summary>
+        public static event Action<ServerTerminationKind> Terminating;
 
         /// <summary>Saves the world without quitting. Returns <c>false</c> when
         /// no session is loaded or the host has not bound an implementation.</summary>
@@ -63,6 +97,29 @@ namespace PluginSdk
         /// <summary>Restarts the process immediately (original command line,
         /// environment and working directory), without saving.</summary>
         public static void RestartWithoutSaving() => restartWithoutSaving();
+
+        /// <summary>Host-only: raises <see cref="Terminating"/>, isolating each
+        /// subscriber so a faulting or slow handler cannot derail the shutdown
+        /// for the others.</summary>
+        internal static void RaiseTerminating(ServerTerminationKind kind)
+        {
+            var handler = Terminating;
+            if (handler == null)
+                return;
+
+            foreach (var subscriber in handler.GetInvocationList())
+            {
+                try
+                {
+                    ((Action<ServerTerminationKind>)subscriber)(kind);
+                }
+                catch(Exception e)
+                {
+                    // A plugin handler must never block or break teardown.
+                    MyLog.Default.Error("Exception in Terminating handler", e);
+                }
+            }
+        }
 
         /// <summary>Host-only: installs the real implementations. Called once at
         /// launcher startup.</summary>
