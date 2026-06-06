@@ -138,8 +138,8 @@ config.AllowedPorts = ports;
 
 ```csharp
 // Local file
-ConfigStorage.SaveXml(config, "config.xml");
-var loaded = ConfigStorage.LoadXml<MyPluginConfig>("config.xml");
+ConfigStorage.SaveXml(config, "config.cfg");
+var loaded = ConfigStorage.LoadXml<MyPluginConfig>("config.cfg");
 
 // Wire format
 var json = ConfigStorage.SaveJson(config);
