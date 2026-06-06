@@ -124,8 +124,8 @@ DS64=/opt/se1-ds/DedicatedServer64 ./build.sh --deps-only
 ```
 
 `build.sh` flags: `--deps-only` (stage only), `--skip-deps` (package only),
-`--clean` (wipe caches and rebuild), or no args to stage **and** package a
-`dist/MagnetarForLinux.<date>.<hash>.7z` bundle.
+`--clean` (wipe caches and rebuild), or no args to stage **and** package the
+`dist/MagnetarForLinux.7z` bundle.
 
 ### Build
 
@@ -248,6 +248,29 @@ platforms and publishes a GitHub release with the two `.7z` bundles attached.
 
 The DS is retrieved anonymously (Steam app `298740`); the Linux job forces the
 Windows depot (`+@sSteamCmdForcePlatformType windows`) because there is no native
-Linux DS — Magnetar runs the Windows files via the native wrappers. The
-`GITHUB_TOKEN` (`contents: write`) is used for the release; no other secret is
-needed.
+Linux DS — Magnetar runs the Windows files via the native wrappers. Both jobs
+bootstrap `steamcmd` once (`+quit`) and then retry the `app_update` a few times:
+a brand-new `steamcmd` self-updates on its first run, which otherwise makes the
+in-session install abort with `Failed to install app '298740' (Missing
+configuration)`. The `GITHUB_TOKEN` (`contents: write`) is used for the release;
+no other secret is needed.
+
+### Testing the workflow from a branch
+
+Because the workflow lives on the default branch (`main`), `workflow_dispatch` is
+registered and can be run against **any** branch — a dispatched run executes the
+workflow *and* code from the chosen branch, and always takes the **draft** path,
+so it never publishes a public release. A push to a non-`main` branch does not
+trigger anything (the push trigger is `main`-only). To iterate on a branch
+without touching `main`:
+
+```sh
+git push origin HEAD:my-branch
+gh workflow run release.yml -R viktor-ferenczi/Magnetar --ref my-branch
+gh run watch -R viktor-ferenczi/Magnetar \
+  "$(gh run list -R viktor-ferenczi/Magnetar --workflow=release.yml -L1 --json databaseId -q '.[0].databaseId')"
+```
+
+Each dispatch creates a draft release for the current version (`v<version>`, or
+`v<version>-build.<run>` if that tag already exists); prune them with
+`gh release delete <tag> -R viktor-ferenczi/Magnetar --yes`.

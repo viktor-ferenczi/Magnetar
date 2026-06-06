@@ -41,7 +41,7 @@ jobs:
       should_build: ${{ steps.decide.outputs.should_build }}
       draft: ${{ steps.decide.outputs.draft }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Decide release plan
         id: decide
@@ -103,10 +103,10 @@ jobs:
     if: needs.version-check.outputs.should_build == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install .NET SDKs
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: |
             8.0.x
@@ -131,7 +131,7 @@ jobs:
 
       - name: Cache native wrappers
         id: nativecache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: native
           key: nativewrappers-${{ steps.linuxcompat.outputs.sha }}
@@ -220,7 +220,7 @@ jobs:
           ls -l "dist/MagnetarForLinux-${VERSION}.7z"
 
       - name: Upload Linux bundle
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: magnetar-linux
           path: dist/MagnetarForLinux-*.7z
@@ -235,10 +235,10 @@ jobs:
     if: needs.version-check.outputs.should_build == 'true'
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install .NET 10 SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 10.0.x
 
@@ -297,7 +297,7 @@ jobs:
           Get-ChildItem dist
 
       - name: Upload Windows bundle
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: magnetar-windows
           path: dist/MagnetarForWindows-*.7z
@@ -312,7 +312,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download bundles
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: dist
           merge-multiple: true
