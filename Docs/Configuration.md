@@ -39,35 +39,38 @@ folder holding `SpaceEngineers-Dedicated.cfg` and the `Saves/` worlds. Without
 it, the server uses its default instance, `%APPDATA%\SpaceEngineersDedicated` on
 Windows.
 
-> **Important — `-path` requires `-console` (or `-noconsole`).** The server only
-> *applies* a custom data path inside its `-console`/`-noconsole` startup branch.
-> Pass them together:
->
-> ```sh
-> MagnetarInterim -console -path "D:\SE\MyServerInstance"
-> ```
->
-> A bare `-path` (without `-console`/`-noconsole`) is ignored and the default
-> AppData instance is used. The target directory **must already exist** — if it
-> does not, the dedicated server aborts startup. Use an absolute path; relative
-> `-path` values are resolved against the DS binaries' folder, not the launcher.
+```sh
+MagnetarInterim -path "D:\SE\MyServerInstance"
+```
 
-#### A note on `-console` / `-noconsole`
+The directory **must already exist**. If it does not, Magnetar logs an error and
+exits (it will **not** silently start on the default instance). Absolute paths
+work on both platforms (`C:\...`, `/srv/...`); a relative path is resolved against
+the DS binaries' folder, not the launcher.
+
+> **Note.** The dedicated server only applies `-path` inside its
+> `-console`/`-noconsole` startup branch, which Magnetar's headless launch
+> normally skips. Magnetar handles this for you: when `-path` is present and you
+> have not passed `-console`/`-noconsole` yourself, it appends `-console`
+> automatically so the path takes effect. You do **not** need to pass a console
+> flag.
+
+#### `-console` / `-noconsole` (optional)
 
 You do **not** need these to run headless — Magnetar already bypasses the
 server's WinForms/Telerik configurator and starts it directly (with console
 output enabled, equivalent to `-console`). They differ only in whether the
 server, *when running interactively*, attaches to the parent console or
-allocates a new console window; on a non-interactive host both are no-ops. The
-**only** reason to pass one is to make `-path` take effect (above). When you do:
-
-* **`-console`** matches Magnetar's default console behaviour.
-* **`-noconsole`** skips the console attach entirely — the cleaner choice when
-  running under Quasar with `-daemon` (which releases the console on Windows), so
-  the server won't re-grab or pop a console window.
+allocates a new console window; on a non-interactive host both are no-ops. Pass
+one explicitly only if you want to override that default — e.g. **`-noconsole`**
+to skip the console attach entirely when running under Quasar with `-daemon`
+(which releases the console on Windows), so the server won't re-grab or pop a
+console window. (When you pass `-noconsole` together with `-path`, the server
+still applies the path — Magnetar only auto-appends `-console` when *no* console
+flag is present.)
 
 Related pass-through DS flags `-session:<path>` (selects which saved world to
-load) and `-ignorelastsession` take effect with or without `-console`.
+load) and `-ignorelastsession` take effect with or without a console flag.
 
 ## Environment variables
 

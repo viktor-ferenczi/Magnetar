@@ -384,6 +384,55 @@ static class Program
         // the server starts. Safe this early — handlers tolerate a null session.
         ServerControl.InstallSignalHandlers();
 
-        Game.StartDedicatedServer(args);
+        Game.StartDedicatedServer(EnsureDataPathApplied(args, ds64Dir));
+    }
+
+    // The dedicated server's own "-path <dir>" argument (the instance/data
+    // directory holding SpaceEngineers-Dedicated.cfg and the world saves) is
+    // parsed by DedicatedServer.ProcessArgs into a *local* variable that is only
+    // forwarded to RunMain inside the "-console" / "-noconsole" branches. The
+    // configurator UI those branches replace is stripped by Patch_DedicatedServerRun,
+    // whose fallback launch passes a null path — so a bare "-path" (without a
+    // console flag) is silently dropped and the default %APPDATA% instance is used.
+    //
+    // Rather than make users remember to also pass "-console", append it for them
+    // when "-path" is present and no console flag is. ProcessArgs then applies the
+    // path through its own (cross-platform) resolution. "-console" matches the
+    // console behaviour Magnetar already launches with by default, so nothing else
+    // changes. A missing directory would make the server abort startup silently, so
+    // validate it here and fail loudly — this is a server, so a typo'd data path
+    // must be explicit rather than quietly loading the default world.
+    private static string[] EnsureDataPathApplied(string[] args, string ds64Dir)
+    {
+        int index = Array.FindIndex(
+            args,
+            arg => arg.Equals("-path", StringComparison.OrdinalIgnoreCase)
+        );
+
+        if (index < 0 || index + 1 >= args.Length)
+            return args;
+
+        // Resolve the same way ProcessArgs does: combine against the DS binaries'
+        // directory. Path.Combine returns a rooted second argument unchanged, so
+        // absolute paths (C:\... or /srv/...) pass through on both platforms.
+        string dataPath = Path.Combine(ds64Dir, args[index + 1].Trim('"'));
+        if (!Directory.Exists(dataPath))
+        {
+            Tools.ShowMessage(
+                $"Error: -path directory does not exist: {dataPath}\n"
+                    + "Create it or correct the path; refusing to start on the default instance."
+            );
+            Environment.Exit(1);
+        }
+
+        bool hasConsoleFlag = args.Any(arg =>
+            arg.Equals("-console", StringComparison.OrdinalIgnoreCase)
+            || arg.Equals("-noconsole", StringComparison.OrdinalIgnoreCase)
+        );
+        if (hasConsoleFlag)
+            return args;
+
+        LogFile.WriteLine($"Applying -path \"{dataPath}\" by enabling the server's console launch mode (-console).");
+        return [.. args, "-console"];
     }
 }
