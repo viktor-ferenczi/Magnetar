@@ -1,147 +1,50 @@
 # Magnetar
 
-A plugin and mod loader for the Space Engineers Dedicated Server (SE1).
-Hard fork of [Pulsar](https://github.com/SpaceGT/Pulsar), adapted to run
-the headless dedicated server on both Windows and Linux — no WinForms,
-no Telerik UI, no Windows-service host.
+A plugin and mod loader for the **Space Engineers (SE1) Dedicated Server**. Hard
+fork of [Pulsar](https://github.com/SpaceGT/Pulsar), adapted to run the headless
+dedicated server — no WinForms, no Telerik UI, no Windows-service host.
 
-## Executables
+Magnetar ships two launchers that drop in for `SpaceEngineersDedicated.exe`:
 
-`MagnetarLegacy` runs the [Space Engineers 1](https://steampowered.com/app/244850) Dedicated Server on [.NET Framework 4.8](https://dotnet.microsoft.com/en-us/download/dotnet-framework) (Windows only)<br>
-`MagnetarInterim` runs the [Space Engineers 1](https://steampowered.com/app/244850) Dedicated Server on [.NET 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
-(via [se-dotnet-compat](https://github.com/viktor-ferenczi/se-dotnet-compat); Windows and Linux)<br>
+| Launcher | Runtime | Platforms |
+| -------- | ------- | --------- |
+| `MagnetarLegacy` | .NET Framework 4.8 | Windows only |
+| `MagnetarInterim` | .NET 10 (via [se-dotnet-compat](https://github.com/viktor-ferenczi/se-dotnet-compat)) | Windows + Linux |
 
-On **Windows** both launchers are built. On **Linux** only `MagnetarInterim`
-is built — `.NET Framework 4.8` is Windows-only, and the Linux dedicated
-server runs on .NET 10 via [se-dotnet-compat](https://github.com/viktor-ferenczi/se-dotnet-compat)
-plus [se-linux-compat](https://github.com/viktor-ferenczi/se-linux-compat).
+On **Windows** both launchers are built; on **Linux** only `MagnetarInterim`
+(.NET 10).
 
-## Usage
+Compatibility plugins are loaded implicitly:
+- [se-dotnet-compat](https://github.com/viktor-ferenczi/se-dotnet-compat) for .NET 10 compatibility
+- [se-linux-compat](https://github.com/viktor-ferenczi/se-linux-compat) for Linux compatibility
 
-Run the `MagnetarLegacy` or `MagnetarInterim` executable from your Dedicated
-Server installation in place of `SpaceEngineersDedicated.exe`.<br>
-Magnetar loads the server with all enabled plugins, then hands off to the
-normal startup.<br>
+You can register new plugins by making PRs to the [MagnetarHub](https://github.com/viktor-ferenczi/magnetarhub).
 
-## Building
+## Control plane — Quasar
 
-Both platforms build from `Magnetar.sln` with the .NET 10 SDK:
-
-```sh
-dotnet build -c Release Magnetar.sln
-```
-
-On **Windows** this produces `MagnetarLegacy` (.NET Framework 4.8) and
-`MagnetarInterim` (.NET 10). On **Linux** it produces `MagnetarInterim`
-only, after a one-time `./build.sh` dependency-staging step.
-
-See **[Docs/Build.md](Docs/Build.md)** for full per-platform instructions —
-prerequisites, dedicated-server detection, dependency staging, publishing,
-and the build-time property/environment overrides.
-
-The Linux packaging step (`./build.sh`, or `Scripts/package_magnetar_for_linux.sh`)
-produces `dist/MagnetarForLinux.7z`.
-
-## Releases
-
-Prebuilt bundles are published on the
-[GitHub Releases](https://github.com/viktor-ferenczi/Magnetar/releases) page:
-
-| Asset | Contents |
-| ----- | -------- |
-| `MagnetarForLinux-<version>.7z` | `install.sh` / `uninstall.sh` + the `MagnetarInterim` (.NET 10) bundle. Extract and run `./install.sh`. |
-| `MagnetarForWindows-<version>.7z` | The `Magnetar/` install tree: `MagnetarLegacy.exe` (.NET 4.8) and `MagnetarInterim.exe` (.NET 10) plus their `Libraries/`. Extract next to your dedicated server. |
-
-Releases are produced automatically by the
-[`Release`](.github/workflows/release.yml) GitHub Actions workflow, which builds
-both platforms (pulling the dedicated server via `steamcmd` and the
-[se-linux-compat](https://github.com/viktor-ferenczi/se-linux-compat) native
-wrappers) and attaches both `.7z` files. A push to `main` publishes a new public
-release when the version in `Legacy/Legacy.csproj` is higher than the latest
-release; a manual run produces a draft by default, or a public release if you
-clear its **draft** option. See
-[Docs/Build.md](Docs/Build.md#continuous-integration--releases) for the full
-release process.
+[**Quasar**](https://github.com/viktor-ferenczi/Quasar/releases) is a separate
+control plane with a Web UI that can manage and control **multiple Magnetar
+instances** from one place. Each Magnetar runs a server and reports structured
+status and logs; Quasar orchestrates them. Launch Magnetar under Quasar with
+`-daemon` so restarting Quasar never takes the servers down — see
+[Usage](Docs/Usage.md#daemon-mode).
 
 ## Documentation
 
-* **[Docs/TOC.md](Docs/TOC.md)** — the **code handbook**: an architecture
-  overview, launch sequence, and a navigable module-by-module / file-by-file
-  reference for the entire source tree (start here to understand the internals).
-* **[Docs/Index.md](Docs/Index.md)** — flat index of every documented source file.
-* **[Docs/Build.md](Docs/Build.md)** — building and packaging.
-* **[skills/se-dev-plugin-sdk](skills/se-dev-plugin-sdk/SKILL.md)** — the
-  plugin-author handbook for `PluginSdk` (config, commands, logging, paths).
+| Page | What's in it |
+| ---- | ------------ |
+| [Install & Releases](Docs/Install.md) | Prebuilt bundles, what to download, installing. |
+| [Usage](Docs/Usage.md) | Running the launcher, daemon mode, handoff to the DS. |
+| [Configuration](Docs/Configuration.md) | Config/install dirs, DS detection, environment variables. |
+| [Plugins](Docs/Plugins.md) | Plugin hubs and the trust boundary. |
+| [Building](Docs/Build.md) | Per-platform build, dependency staging, packaging, releases. |
+| [Repository layout](Docs/Layout.md) | What lives where in the source tree. |
 
-## Layout
-
-| Path                         | Purpose                                                           |
-| ---------------------------- | ----------------------------------------------------------------- |
-| `Legacy/`                    | Launcher (`MagnetarLegacy` / `MagnetarInterim`) — entry point, preloader, patches |
-| `Shared/`                    | Cross-project plugin loader / config / network code               |
-| `Compiler/`                  | Roslyn-based on-disk source plugin compiler                       |
-| `PluginSdk/`                 | Public API surface plugins compile against                        |
-| `Scripts/`                   | Build helpers (Steamworks.NET, licenses)                          |
-| `build/Libraries/`           | Staged Linux dependencies (gitignored, populated by `./build.sh`) |
-| `dist/`                      | Packaged distributables (gitignored)                              |
-
-## Configuration
-
-* **Config dir**
-  * Windows — `%APPDATA%\Magnetar` (next to the install).
-  * Linux — `$XDG_CONFIG_HOME/Magnetar`, falling back to `~/.config/Magnetar`.
-* **Install dir (default)**
-  * Windows — `%APPDATA%\Magnetar`.
-  * Linux — `$XDG_DATA_HOME/Magnetar`, falling back to `~/.local/share/Magnetar`.
-* **DS location** — auto-detected from the Steam registry (Windows) or
-  `~/.steam/steam/steamapps/common/SpaceEngineersDedicatedServer/DedicatedServer64`
-  (Linux), or any Steam library listed in `libraryfolders.vdf`. Override
-  with `-ds64 /path/to/DedicatedServer64`.
-
-## Environment variables
-
-| Variable             | Effect                                                           |
-| -------------------- | ---------------------------------------------------------------- |
-| `MAGNETAR_SAFE_MODE` | When `1`, disables preloader patches for a one-off recovery run. |
-| `XDG_CONFIG_HOME`    | Overrides the config-dir base (Linux).                           |
-| `XDG_DATA_HOME`      | Overrides the install-dir base (Linux).                          |
-| `DS64`               | Build-time override for the DS reference path.                   |
-
-## Running
-
-Run the launcher in place of `SpaceEngineersDedicated.exe`:
-
-```sh
-# Windows
-%APPDATA%\Magnetar\MagnetarLegacy.exe
-%APPDATA%\Magnetar\MagnetarInterim.exe
-
-# Linux
-~/.local/share/Magnetar/MagnetarInterim
-```
-
-Magnetar resolves the DS install, applies any preloader patches, loads
-enabled plugins, then hands off to the dedicated server's own `Main`.
-
-Pass `-daemon` to detach the process from its parent (typically Quasar) at
-startup, so the parent terminating does not take the server down with it. On
-Linux this is a `setsid()` — the process leaves the parent's session and
-process group (an explicit `kill -HUP <pid>` still reloads the config). When
-launched as a child it detaches in place, keeping the PID and inherited
-stdout/stderr so a managing parent keeps capturing the log stream until it
-exits; when the process is itself a process-group leader (e.g. a wrapper script
-that `exec`s it), `setsid()` is not permitted in place, so it re-execs a
-detached child and the original exits. On Windows it detaches from the inherited
-console.
-
-## Plugins
-
-Plugins are registered on
-[PluginHub-DS](https://github.com/viktor-ferenczi/PluginHub-DS/). Adding
-other hubs is possible but extends the trust boundary — plugins run
-unsandboxed native code.
+For the full **code handbook** — architecture overview, launch sequence, and a
+navigable module-by-module / file-by-file reference of the entire source tree —
+see **[Docs/TOC.md](Docs/TOC.md)**.
 
 ## Contact
 
-[Discord](https://discord.gg/z8ZczP2YZY) for support and developer
-discussion. GitHub issues and PRs for bug reports and contributions.
+[Discord](https://discord.gg/z8ZczP2YZY) for support and developer discussion.
+GitHub issues and PRs for bug reports and contributions.

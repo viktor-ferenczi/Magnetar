@@ -27,10 +27,14 @@ Progressive disclosure, three levels deep:
 Need a flat list instead? **[`Index.md`](Index.md)** lists every documented
 file with its module, tier, and one-line summary.
 
-Related docs that already exist (kept as-is):
+Related docs (start from the [`../README.md`](../README.md) for the short intro):
 
+- **[`Install.md`](Install.md)** — prebuilt bundles and installing.
+- **[`Usage.md`](Usage.md)** — running the launcher, daemon mode, handoff.
+- **[`Configuration.md`](Configuration.md)** — config/install dirs, DS detection, environment variables.
+- **[`Plugins.md`](Plugins.md)** — plugin hubs and the trust boundary.
 - **[`Build.md`](Build.md)** — per-platform build, dependency staging, publishing, and build-time overrides.
-- **[`../README.md`](../README.md)** — install, usage, configuration, environment variables.
+- **[`Layout.md`](Layout.md)** — repository layout.
 - **[`../skills/se-dev-plugin-sdk/`](../skills/se-dev-plugin-sdk/SKILL.md)** — plugin-developer handbook for `PluginSdk`.
 
 ## Architecture at a glance

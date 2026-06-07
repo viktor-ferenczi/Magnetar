@@ -181,7 +181,7 @@ the same name); resolved per OS in [Directory.Build.props](../Directory.Build.pr
 
 Runtime knobs (set when launching, not building) — `MAGNETAR_SAFE_MODE`,
 `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, and the `-ds64` / `-config` command-line
-overrides — are documented in the [README](../README.md).
+overrides — are documented in [Configuration.md](Configuration.md).
 
 ---
 
