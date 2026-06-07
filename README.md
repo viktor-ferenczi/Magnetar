@@ -24,10 +24,8 @@ You can register new plugins by making PRs to the [MagnetarHub](https://github.c
 
 [**Quasar**](https://github.com/viktor-ferenczi/Quasar/releases) is a separate
 control plane with a Web UI that can manage and control **multiple Magnetar
-instances** from one place. Each Magnetar runs a server and reports structured
-status and logs; Quasar orchestrates them. Launch Magnetar under Quasar with
-`-daemon` so restarting Quasar never takes the servers down — see
-[Usage](Docs/Usage.md#daemon-mode).
+instances** from one place. Each Magnetar reports structured status and logs;
+Quasar orchestrates them.
 
 ## Documentation
 
