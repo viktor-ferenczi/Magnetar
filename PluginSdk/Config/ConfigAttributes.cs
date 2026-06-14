@@ -176,6 +176,13 @@ namespace PluginSdk.Config
         public int MaxLength { get; }
         public string Pattern { get; }
 
+        /// <summary>
+        /// When <c>true</c> the UI renders an auto-growing, multi-line text
+        /// area instead of a single-line input. The stored value is still a
+        /// plain string; newlines are preserved.
+        /// </summary>
+        public bool Multiline { get; set; }
+
         public StringOptionAttribute(int maxLength = 0, string pattern = null, string description = null)
             : base(description)
         {
