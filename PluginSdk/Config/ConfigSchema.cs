@@ -101,6 +101,7 @@ namespace PluginSdk.Config
                     info.Type = "string";
                     if (so.MaxLength > 0) info.MaxLength = so.MaxLength;
                     info.Pattern = so.Pattern;
+                    if (so.Multiline) info.Multiline = true;
                     break;
 
                 case ListOptionAttribute listOpt:
@@ -491,6 +492,12 @@ namespace PluginSdk.Config
         // String constraints
         public int? MaxLength { get; set; }
         public string Pattern { get; set; }
+
+        /// <summary>
+        /// Set on multi-line <c>string</c> options. <c>true</c> = the UI
+        /// renders an auto-growing text area instead of a single-line input.
+        /// </summary>
+        public bool? Multiline { get; set; }
 
         // List / Dict
         public int? MaxCount { get; set; }
